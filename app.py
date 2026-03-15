@@ -1009,27 +1009,46 @@ def values():
     """Scholarly and engineering values with evidence from the database."""
     conn = get_db()
 
-    # Topic prevalence with user-only sentiment (scholarly passion indicator)
-    topic_stats = conn.execute("""
+    # Topic prevalence — fast version (no correlated subqueries)
+    # Pre-compute sentiment per tag
+    tag_sentiment = dict(conn.execute("""
+        SELECT t.name, round(avg(m.sentiment_vader), 3)
+        FROM messages m
+        JOIN conversations c ON c.id = m.conversation_id
+        JOIN conversation_tags ct ON ct.conversation_id = c.id
+        JOIN tags t ON t.id = ct.tag_id
+        WHERE m.role = 'user' AND m.sentiment_vader IS NOT NULL
+        GROUP BY t.name
+    """).fetchall())
+
+    # Pre-compute idea count per tag
+    tag_ideas = dict(conn.execute("""
+        SELECT t.name, count(DISTINCT i.id)
+        FROM ideas i
+        JOIN conversation_tags ct ON ct.conversation_id = i.conversation_id
+        JOIN tags t ON t.id = ct.tag_id
+        GROUP BY t.name
+    """).fetchall())
+
+    topic_rows = conn.execute("""
         SELECT t.name,
                count(DISTINCT ct.conversation_id) as convos,
                round(sum(c.estimated_pages), 0) as total_pages,
-               round(avg(c.estimated_pages), 1) as avg_pages,
-               (SELECT round(avg(m2.sentiment_vader), 3) FROM messages m2
-                JOIN conversations c2 ON c2.id=m2.conversation_id
-                JOIN conversation_tags ct2 ON ct2.conversation_id=c2.id
-                WHERE ct2.tag_id=t.id AND m2.role='user'
-                AND m2.sentiment_vader IS NOT NULL) as user_sentiment,
-               (SELECT count(DISTINCT i.id) FROM ideas i
-                JOIN conversation_tags ct3 ON ct3.conversation_id=i.conversation_id
-                WHERE ct3.tag_id=t.id) as idea_count
+               round(avg(c.estimated_pages), 1) as avg_pages
         FROM tags t
-        JOIN conversation_tags ct ON ct.tag_id=t.id
-        JOIN conversations c ON c.id=ct.conversation_id
+        JOIN conversation_tags ct ON ct.tag_id = t.id
+        JOIN conversations c ON c.id = ct.conversation_id
         GROUP BY t.name
         HAVING convos >= 5
         ORDER BY convos DESC
     """).fetchall()
+
+    topic_stats = []
+    for row in topic_rows:
+        d = dict(row)
+        d["user_sentiment"] = tag_sentiment.get(d["name"], 0)
+        d["idea_count"] = tag_ideas.get(d["name"], 0)
+        topic_stats.append(d)
 
     # Idea maturity funnel
     maturity_funnel = conn.execute("""
