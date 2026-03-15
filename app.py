@@ -1072,8 +1072,13 @@ def values():
 
 @app.route("/showcases")
 def showcases_index():
-    """List all showcase dream pages."""
-    return render_template("showcases.html", showcases=list(SHOWCASES.values()))
+    """List all showcase dream pages — games, special showcases, and collections."""
+    return render_template(
+        "showcases.html",
+        showcases=list(SHOWCASES.values()),
+        specials=list(SPECIAL_SHOWCASES.values()),
+        collections=list(COLLECTIONS.values()),
+    )
 
 
 @app.route("/dream/<slug>")

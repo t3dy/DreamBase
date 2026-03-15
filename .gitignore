@@ -38,3 +38,8 @@ ingest_errors.log
 # Virtual env
 venv/
 .venv/
+
+# PyInstaller build artifacts
+build/
+dist/
+*.spec

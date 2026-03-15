@@ -5,10 +5,18 @@ Creates and manages the unified SQLite database.
 
 import sqlite3
 import os
+import sys
 import logging
 from datetime import datetime
 
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "megabase.db")
+# When running from a PyInstaller bundle, __file__ points to a temp extraction dir.
+# sys.executable points to where the .exe lives — which is where megabase.db sits.
+if getattr(sys, "frozen", False):
+    _BASE_DIR = os.path.dirname(sys.executable)
+else:
+    _BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+DB_PATH = os.path.join(_BASE_DIR, "megabase.db")
 
 logging.basicConfig(
     filename=os.path.join(os.path.dirname(os.path.abspath(__file__)), "ingest_errors.log"),
