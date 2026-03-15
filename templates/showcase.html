@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ showcase.title }} — Dreambase</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+/* Showcase page styles */
+.showcase-hero {
+  padding: 2rem 2rem 1.5rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.showcase-hero h2 {
+  font-size: 1.8rem;
+  margin-bottom: 0.4rem;
+  color: var(--text);
+}
+.showcase-hook {
+  font-size: 1.1rem;
+  color: var(--accent);
+  font-style: italic;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+.showcase-meta {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+.showcase-meta .stat {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.showcase-meta .stat strong {
+  color: var(--orange);
+}
+
+/* Tab navigation */
+.showcase-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 2rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.tab-btn {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s, border-color 0.2s;
+}
+.tab-btn:hover {
+  color: var(--text);
+  background: none;
+}
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: none;
+}
+
+/* Tab content panels */
+.tab-panel {
+  display: none;
+  padding: 2rem;
+  max-width: 900px;
+}
+.tab-panel.active {
+  display: block;
+}
+
+/* Overview tab */
+.narrative {
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--text);
+}
+.narrative p {
+  margin-bottom: 1rem;
+}
+.narrative h3 {
+  color: var(--accent);
+  margin: 1.5rem 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+/* Design Evolution tab */
+.timeline-entry {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.timeline-date {
+  min-width: 90px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  padding-top: 0.2rem;
+}
+.timeline-body h4 {
+  font-size: 0.95rem;
+  margin-bottom: 0.3rem;
+}
+.timeline-body p {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.timeline-body .conv-link {
+  font-size: 0.75rem;
+  margin-top: 0.3rem;
+  display: inline-block;
+}
+
+/* Key Quotes tab */
+.quote-card {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background: var(--bg);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+}
+.quote-card blockquote {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  font-style: italic;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+.quote-card .quote-source {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Gallery tab */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+.gallery-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.gallery-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+.gallery-item .caption {
+  padding: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.gallery-placeholder {
+  width: 100%;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Source Conversations tab */
+.source-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.source-conv {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  transition: border-color 0.2s;
+}
+.source-conv:hover {
+  border-color: var(--accent);
+  text-decoration: none;
+}
+.source-conv .title {
+  flex: 1;
+  font-size: 0.9rem;
+}
+.source-conv .pages {
+  font-size: 0.85rem;
+  color: var(--orange);
+  font-weight: 600;
+  min-width: 50px;
+  text-align: right;
+}
+
+/* Pedagogy section (within overview or its own tab) */
+.pedagogy-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-top: 1.5rem;
+}
+.pedagogy-box h4 {
+  color: var(--orange);
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+.pedagogy-box .difficulty {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+.difficulty-level {
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+.difficulty-level.easy { background: #1a3a1a; color: var(--green); }
+.difficulty-level.medium { background: #3a2a1a; color: var(--orange); }
+.difficulty-level.hard { background: #3a1a1a; color: var(--red); }
+.difficulty-level strong { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem; }
+
+/* Tags */
+.showcase-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 1rem;
+}
+
+/* Empty state */
+.placeholder-note {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.9rem;
+  padding: 2rem;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+<header>
+  <h1><a href="/">Dreambase</a></h1>
+  <nav>
+    <a href="/">Browse</a>
+    <a href="/viz">Viz</a>
+    <a href="/ideas">Ideas</a>
+    <a href="/showcases">Showcases</a>
+    <a href="/collections">Collections</a>
+    <a href="/scholars">Scholars</a>
+    <a href="/projects">Projects</a>
+    <a href="/values">Values</a>
+  </nav>
+</header>
+
+<!-- Hero -->
+<div class="showcase-hero">
+  <h2>{{ showcase.title }}</h2>
+  <div class="showcase-hook">{{ showcase.hook }}</div>
+  <div class="showcase-meta">
+    <span class="stat"><strong>{{ conversations|length }}</strong> conversations</span>
+    <span class="stat"><strong>{{ total_pages }}</strong> pages of design</span>
+    <span class="stat"><strong>{{ showcase.category }}</strong></span>
+    {% if showcase.maturity %}
+    <span class="pill mini maturity-{{ showcase.maturity }}">{{ showcase.maturity }}</span>
+    {% endif %}
+  </div>
+  {% if tags %}
+  <div class="showcase-tags">
+    {% for t in tags %}
+    <a href="/?tag={{ t }}" class="pill">{{ t }}</a>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+<!-- Tabs -->
+<div class="showcase-tabs">
+  <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="showTab('evolution')">Design Evolution</button>
+  <button class="tab-btn" onclick="showTab('quotes')">Key Quotes</button>
+  <button class="tab-btn" onclick="showTab('gallery')">Gallery</button>
+  <button class="tab-btn" onclick="showTab('sources')">Source Conversations</button>
+</div>
+
+<!-- TAB: Overview -->
+<div class="tab-panel active" id="tab-overview">
+  {% if showcase.narrative %}
+  <div class="narrative">
+    {{ showcase.narrative|safe }}
+  </div>
+  {% else %}
+  <p class="placeholder-note">
+    Narrative summary pending. Generate by running the ChatGPT batch reading workflow
+    on this dream's source conversations, then import with showcase_import.py.
+  </p>
+  {% endif %}
+
+  {% if showcase.pedagogy %}
+  <div class="pedagogy-box">
+    <h4>What This Dream Teaches</h4>
+    <p style="font-size:0.88rem; color:var(--text-muted); line-height:1.5;">{{ showcase.pedagogy }}</p>
+    {% if showcase.difficulty_easy or showcase.difficulty_medium or showcase.difficulty_hard %}
+    <div class="difficulty">
+      {% if showcase.difficulty_easy %}
+      <div class="difficulty-level easy"><strong>Easy</strong>{{ showcase.difficulty_easy }}</div>
+      {% endif %}
+      {% if showcase.difficulty_medium %}
+      <div class="difficulty-level medium"><strong>Medium</strong>{{ showcase.difficulty_medium }}</div>
+      {% endif %}
+      {% if showcase.difficulty_hard %}
+      <div class="difficulty-level hard"><strong>Hard</strong>{{ showcase.difficulty_hard }}</div>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<!-- TAB: Design Evolution -->
+<div class="tab-panel" id="tab-evolution">
+  {% if timeline_entries %}
+  {% for entry in timeline_entries %}
+  <div class="timeline-entry">
+    <div class="timeline-date">{{ entry.date }}</div>
+    <div class="timeline-body">
+      <h4>{{ entry.title }}</h4>
+      <p>{{ entry.description }}</p>
+      {% if entry.conversation_id %}
+      <a href="/conversation/{{ entry.conversation_id }}" class="conv-link">View conversation</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <p class="placeholder-note">
+    Design evolution timeline pending. Will be populated after ChatGPT batch reading.
+  </p>
+  {% endif %}
+</div>
+
+<!-- TAB: Key Quotes -->
+<div class="tab-panel" id="tab-quotes">
+  {% if quotes %}
+  {% for q in quotes %}
+  <div class="quote-card">
+    <blockquote>"{{ q.text }}"</blockquote>
+    <div class="quote-source">
+      — {{ q.role }}, {{ q.conversation_title }}
+      {% if q.conversation_id %}
+      <a href="/conversation/{{ q.conversation_id }}">view</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <p class="placeholder-note">
+    Key quotes will be extracted during the ChatGPT batch reading workflow.
+    The best moments from {{ conversations|length }} conversations, curated.
+  </p>
+  {% endif %}
+</div>
+
+<!-- TAB: Gallery -->
+<div class="tab-panel" id="tab-gallery">
+  {% if images %}
+  <div class="gallery-grid">
+    {% for img in images %}
+    <div class="gallery-item">
+      <img src="{{ img.url }}" alt="{{ img.caption }}" loading="lazy"
+           onerror="this.parentElement.innerHTML='<div class=gallery-placeholder>Image unavailable</div>'">
+      <div class="caption">{{ img.caption }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="placeholder-note">
+    Gallery pending. Sources: DALL-E images from ChatGPT conversations,
+    public domain art from Wikimedia Commons, AI-generated concept art (v2).
+  </p>
+  {% endif %}
+</div>
+
+<!-- TAB: Source Conversations -->
+<div class="tab-panel" id="tab-sources">
+  <div class="source-list">
+    {% for c in conversations %}
+    <a href="/conversation/{{ c.id }}" class="source-conv">
+      <span class="source-badge {{ c.source_name }}">{{ c.source_name }}</span>
+      <span class="title">{{ c.title }}</span>
+      <span class="pages">{{ "%.0f"|format(c.estimated_pages or 0) }}p</span>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>

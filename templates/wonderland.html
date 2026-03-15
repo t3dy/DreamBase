@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ showcase.title }} — Dreambase</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+/* ============================================================
+   ALGORITHMS IN WONDERLAND — Flagship Illustrated Showcase
+   Tufte + cabinet of curiosities + xkcd values.
+   Dense, legible, atmospheric, navigable.
+   ============================================================ */
+
+/* Hero */
+.wonderland-hero {
+  padding: 3rem 2rem 2rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  max-width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+.wonderland-hero::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 300px;
+  background: linear-gradient(to left, rgba(232,168,56,0.04), transparent);
+  pointer-events: none;
+}
+.wonderland-hero h2 {
+  font-size: 2.2rem;
+  margin-bottom: 0.3rem;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.wonderland-subtitle {
+  font-size: 1rem;
+  color: var(--text-muted);
+  font-style: italic;
+  line-height: 1.6;
+  max-width: 700px;
+  margin-bottom: 1.25rem;
+}
+.wonderland-hook {
+  font-size: 1.1rem;
+  color: {{ showcase.color }};
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+  max-width: 650px;
+}
+.wonderland-stats {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.wonderland-stats strong { color: var(--orange); }
+.wonderland-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 1rem;
+}
+
+/* Tab navigation */
+.wonderland-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 2rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.w-tab {
+  padding: 0.75rem 1.25rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s, border-color 0.2s;
+}
+.w-tab:hover { color: var(--text); background: none; }
+.w-tab.active {
+  color: {{ showcase.color }};
+  border-bottom-color: {{ showcase.color }};
+  background: none;
+}
+
+/* Tab panels */
+.w-panel {
+  display: none;
+  padding: 2.5rem 2rem;
+  max-width: 920px;
+}
+.w-panel.active { display: block; }
+
+/* ---- OVERVIEW TAB: Illustrated Essay ---- */
+.essay {
+  font-size: 0.95rem;
+  line-height: 1.85;
+  color: var(--text);
+}
+.essay p { margin-bottom: 1.25rem; }
+.essay h3 {
+  color: {{ showcase.color }};
+  font-size: 1.15rem;
+  margin: 2.5rem 0 0.75rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--border);
+}
+.essay .section-epigraph {
+  font-style: italic;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin: -0.5rem 0 1rem;
+  padding-left: 1rem;
+  border-left: 2px solid {{ showcase.color }};
+}
+
+/* Inline illustration */
+.illustration {
+  margin: 1.75rem 0;
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+.illustration.right { flex-direction: row-reverse; }
+.illustration img {
+  width: 200px;
+  min-width: 200px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #f5f0e8;
+  padding: 6px;
+}
+.illustration .caption {
+  flex: 1;
+}
+.illustration .caption .img-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: {{ showcase.color }};
+  margin-bottom: 0.3rem;
+}
+.illustration .caption p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-bottom: 0;
+}
+
+/* Small inline figure (margin note style) */
+.marginal-figure {
+  float: right;
+  width: 180px;
+  margin: 0 0 1rem 1.5rem;
+  padding: 0;
+}
+.marginal-figure img {
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #f5f0e8;
+  padding: 4px;
+}
+.marginal-figure .fig-caption {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 0.3rem;
+  line-height: 1.35;
+}
+
+/* ---- DESIGN EVOLUTION TAB ---- */
+.timeline { max-width: 750px; }
+.timeline-entry {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.timeline-marker {
+  min-width: 100px;
+  text-align: right;
+}
+.timeline-marker .phase {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: {{ showcase.color }};
+  margin-bottom: 0.2rem;
+}
+.timeline-marker .date {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.timeline-body h4 {
+  font-size: 0.95rem;
+  margin-bottom: 0.35rem;
+  color: var(--text);
+}
+.timeline-body p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+.timeline-body .conv-link {
+  font-size: 0.75rem;
+  margin-top: 0.3rem;
+  display: inline-block;
+  color: {{ showcase.color }};
+}
+
+/* ---- KEY QUOTES TAB ---- */
+.quote-archive {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  background: var(--bg);
+  border-left: 3px solid {{ showcase.color }};
+  border-radius: 0 8px 8px 0;
+}
+.quote-archive blockquote {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+.quote-archive .attribution {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.quote-literary {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  background: rgba(232,168,56,0.04);
+  border-left: 3px solid var(--text-muted);
+  border-radius: 0 8px 8px 0;
+}
+.quote-literary blockquote {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  font-style: italic;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+.quote-literary .attribution {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+.quote-section-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin: 2rem 0 0.75rem;
+  opacity: 0.6;
+}
+
+/* ---- TEXTS & ALLUSIONS TAB ---- */
+.allusion-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.allusion-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.allusion-literary {
+  padding: 1.25rem 1.5rem;
+  border-right: 1px solid var(--border);
+  background: rgba(232,168,56,0.03);
+}
+.allusion-cs {
+  padding: 1.25rem 1.5rem;
+}
+.allusion-literary h4, .allusion-cs h4 {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5rem;
+}
+.allusion-literary h4 { color: var(--text-muted); }
+.allusion-cs h4 { color: {{ showcase.color }}; }
+.allusion-literary .scene {
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+.allusion-cs .concept {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+.allusion-literary p, .allusion-cs p {
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.allusion-connector {
+  grid-column: 1 / -1;
+  padding: 0.5rem 1.5rem;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ---- CONCEPT MAP TAB ---- */
+.concept-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.concept-matrix th {
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 2px solid {{ showcase.color }};
+  color: {{ showcase.color }};
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.concept-matrix td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  vertical-align: top;
+  line-height: 1.45;
+}
+.concept-matrix td:first-child {
+  color: var(--text);
+  font-weight: 500;
+  min-width: 140px;
+}
+.concept-matrix tr:hover td {
+  background: rgba(232,168,56,0.03);
+}
+.concept-matrix .rabbit-link {
+  font-size: 0.75rem;
+  color: {{ showcase.color }};
+}
+
+/* ---- SOURCE CONVERSATIONS TAB ---- */
+.source-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.source-conv {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  transition: border-color 0.2s;
+}
+.source-conv:hover {
+  border-color: {{ showcase.color }};
+  text-decoration: none;
+}
+.source-conv .title { flex: 1; font-size: 0.9rem; }
+.source-conv .summary {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+  line-height: 1.4;
+}
+.source-conv .pages {
+  font-size: 0.85rem;
+  color: var(--orange);
+  font-weight: 600;
+  min-width: 50px;
+  text-align: right;
+}
+
+/* ---- RABBIT HOLES TAB ---- */
+.rabbit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+.rabbit-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  transition: border-color 0.2s, transform 0.1s;
+  border-top: 3px solid var(--accent);
+}
+.rabbit-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  text-decoration: none;
+  color: var(--text);
+}
+.rabbit-card h4 {
+  font-size: 0.95rem;
+  margin-bottom: 0.3rem;
+  color: var(--text);
+}
+.rabbit-card .rabbit-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+.rabbit-card .rabbit-meta {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* Placeholder */
+.placeholder-note {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.9rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .illustration { flex-direction: column !important; }
+  .illustration img { width: 100%; min-width: auto; }
+  .allusion-card { grid-template-columns: 1fr; }
+  .allusion-literary { border-right: none; border-bottom: 1px solid var(--border); }
+  .marginal-figure { float: none; width: 100%; margin: 1rem 0; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1><a href="/">Dreambase</a></h1>
+  <nav>
+    <a href="/">Browse</a>
+    <a href="/viz">Viz</a>
+    <a href="/ideas">Ideas</a>
+    <a href="/showcases">Showcases</a>
+    <a href="/collections">Collections</a>
+    <a href="/scholars">Scholars</a>
+    <a href="/projects">Projects</a>
+    <a href="/values">Values</a>
+  </nav>
+</header>
+
+<!-- ============ HERO ============ -->
+<div class="wonderland-hero">
+  <h2>{{ showcase.title }}</h2>
+  <div class="wonderland-subtitle">{{ showcase.subtitle }}</div>
+  <div class="wonderland-hook">{{ showcase.hook }}</div>
+  <div class="wonderland-stats">
+    <span><strong>{{ conversations|length }}</strong> source conversations</span>
+    <span><strong>{{ total_pages }}</strong> pages of exploration</span>
+    <span><strong>{{ total_messages }}</strong> messages</span>
+    <span><strong>7</strong> Carroll / CS correspondences mapped</span>
+  </div>
+  <div class="wonderland-tags">
+    {% for t in showcase.tags %}
+    <a href="/?tag={{ t }}" class="pill">{{ t }}</a>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- ============ TABS ============ -->
+<div class="wonderland-tabs">
+  <button class="w-tab active" onclick="showTab('overview')">Overview</button>
+  <button class="w-tab" onclick="showTab('evolution')">Design Evolution</button>
+  <button class="w-tab" onclick="showTab('quotes')">Key Quotes</button>
+  <button class="w-tab" onclick="showTab('allusions')">Texts &amp; Allusions</button>
+  <button class="w-tab" onclick="showTab('concepts')">Concept Map</button>
+  <button class="w-tab" onclick="showTab('sources')">Source Conversations</button>
+  <button class="w-tab" onclick="showTab('rabbitholes')">Rabbit Holes</button>
+</div>
+
+<!-- ============ TAB: OVERVIEW ============ -->
+<div class="w-panel active" id="tab-overview">
+<div class="essay">
+
+<p>
+There is a moment, early in the study of computer science, when the rules stop making intuitive sense. Variables mutate out from under you. Functions call themselves. A loop that should terminate doesn't, and a program that should fail runs forever. The feeling is vertiginous — the same vertigo Alice feels falling down the rabbit hole, watching shelves of marmalade drift past in a darkness that has no floor.
+</p>
+
+<p>
+This is not a coincidence. Charles Lutwidge Dodgson — Lewis Carroll — was a mathematician at Christ Church, Oxford, and the Alice books are, beneath their whimsy, deeply structured meditations on logic, language, and the consequences of following rules to their absurd conclusions. The Queen of Hearts doesn't just shout "Off with their heads!" for dramatic effect; she embodies arbitrary constraint satisfaction, the kind of system where the rules exist but the reasons don't, and you must comply anyway. The Mad Tea Party isn't just nonsense — it's a protocol that has lost its termination condition.
+</p>
+
+<div class="illustration">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Alice_par_John_Tenniel_02.png/220px-Alice_par_John_Tenniel_02.png"
+       alt="Alice falling down the rabbit hole, by John Tenniel (1865)"
+       loading="lazy">
+  <div class="caption">
+    <div class="img-title">Entering the System</div>
+    <p>Alice's descent is the programmer's first encounter with a complex codebase: everything looks familiar (shelves, cupboards, maps) but nothing behaves as expected. The fall has no visible bottom. You don't crash — you just keep going deeper, and the rules change as you go.</p>
+  </div>
+</div>
+
+<h3>I. Size Changes as State Mutation</h3>
+<div class="section-epigraph">"Curiouser and curiouser!" cried Alice (she was so much surprised, that for the moment she quite forgot how to speak good English).</div>
+
+<p>
+Alice's size changes are the book's central mechanism, and they map precisely onto the concept of state mutation in programming. She drinks from a bottle and shrinks. She eats a cake and grows. The transformations are governed by inputs (eat this, drink that) but the outputs are unpredictable — sometimes she grows too large, sometimes too small, and the system offers no undo. This is mutable state: the entity changes in place, and you cannot return to the previous version without saving it first.
+</p>
+
+<div class="illustration right">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Alice_par_John_Tenniel_09.png/220px-Alice_par_John_Tenniel_09.png"
+       alt="Alice growing too large in the White Rabbit's house, by John Tenniel (1865)"
+       loading="lazy">
+  <div class="caption">
+    <div class="img-title">Buffer Overflow</div>
+    <p>Alice grows so large she fills the White Rabbit's entire house — arms out the windows, foot up the chimney. In systems terms: the data has exceeded the container's capacity. The Rabbit's response (send in Bill the Lizard) is a classic inadequate error handler dispatched against a problem it cannot possibly fix.</p>
+  </div>
+</div>
+
+<p>
+The pedagogical insight here is that state mutation is genuinely confusing, and Carroll knew it. Every time Alice changes size, she has an identity crisis: "Who in the world am I?" This is exactly the question a student asks when a variable they thought held the number 5 now holds the string "five" — or when <code>this</code> in JavaScript points somewhere unexpected. The confusion is not a failure of understanding. It is the correct response to a system where identity is unstable.
+</p>
+
+<h3>II. The Mad Tea Party as Broken Protocol</h3>
+<div class="section-epigraph">"No room! No room!" they cried out when they saw Alice coming. "There's plenty of room!" said Alice indignantly.</div>
+
+<p>
+The Tea Party is structured as a communication protocol that has lost its termination condition. The Hatter, the March Hare, and the Dormouse cycle endlessly through the same seats, the same teacups, the same riddles without answers. Time, the Hatter explains, has stopped — he quarreled with Time, and now it is always six o'clock, always tea-time, and they can never finish the meal or clean up.
+</p>
+
+<div class="illustration">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Alice_par_John_Tenniel_25.png/220px-Alice_par_John_Tenniel_25.png"
+       alt="The Mad Tea Party, by John Tenniel (1865)"
+       loading="lazy">
+  <div class="caption">
+    <div class="img-title">Infinite Loop with Resource Leak</div>
+    <p>The Tea Party is a process that cannot exit. The participants cycle through positions (move down one seat), consume resources (dirty teacups), and never trigger a cleanup routine because Time — the scheduler — has been halted. The Dormouse's tendency to fall asleep mid-sentence is a thread going unresponsive inside a deadlocked process.</p>
+  </div>
+</div>
+
+<p>
+This is, in contemporary terms, an infinite loop with a resource leak. The party consumes cups but never washes them. The seats cycle but the conversation doesn't progress. The system is stuck in a valid but useless state — technically running, effectively dead. Carroll's genius is that the characters are aware of their predicament but powerless to fix it, which is exactly how it feels to debug a livelock.
+</p>
+
+<h3>III. The Queen's Court as Adversarial System</h3>
+<div class="section-epigraph">"Sentence first — verdict afterwards."</div>
+
+<p>
+The Queen of Hearts runs Wonderland as an adversarial system: the rules exist to be enforced, not to produce fair outcomes. The croquet game uses live flamingos as mallets and hedgehogs as balls — the tools have their own agency and refuse to cooperate. The trial of the Knave of Hearts reverses the order of evidence and verdict. The Queen's constant "Off with their heads!" is a brute-force termination command applied to every problem regardless of context.
+</p>
+
+<div class="marginal-figure">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Alice_par_John_Tenniel_32.png/220px-Alice_par_John_Tenniel_32.png"
+       alt="The Queen of Hearts, by John Tenniel (1865)"
+       loading="lazy">
+  <div class="fig-caption">The Queen: arbitrary constraint satisfaction with maximum authority and zero error handling.</div>
+</div>
+
+<p>
+In CS terms, this is a system where the specification is adversarial — the rules are not designed to help you succeed but to create conditions for failure. Game theory, adversarial search, and Byzantine fault tolerance all deal with systems where not every participant is cooperating. The Queen's court is the ur-example: the judge is hostile, the rules are inconsistent, and the only winning move (as Alice eventually discovers) is to reject the system's authority entirely — to stand up and say "You're nothing but a pack of cards!"
+</p>
+
+<h3>IV. Through the Looking-Glass: Inversion and Symmetry</h3>
+<div class="section-epigraph">"It's a poor sort of memory that only works backwards."</div>
+
+<p>
+The second Alice book introduces the mirror world, where everything runs in reverse: you must run as fast as you can just to stay in place, dessert is served before the main course, and the White Queen remembers things that haven't happened yet. This is the domain of inversion — a fundamental operation in computer science that shows up as bitwise NOT, matrix transposition, stack reversal, and the duality between encryption and decryption.
+</p>
+
+<div class="illustration right">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Alice_par_John_Tenniel_34.png/220px-Alice_par_John_Tenniel_34.png"
+       alt="Alice stepping through the Looking-Glass, by John Tenniel (1871)"
+       loading="lazy">
+  <div class="caption">
+    <div class="img-title">Entering the Dual Space</div>
+    <p>The Looking-Glass is not just a mirror — it's a transformation that preserves structure while reversing orientation. In category theory, this is a functor between a category and its opposite. Alice can navigate the mirror world because its rules are consistent, even though they are the reverse of everything she knows.</p>
+  </div>
+</div>
+
+<p>
+The pedagogical power of the Looking-Glass is that it makes inversion intuitive. Students who struggle with the abstract idea that a function can have an inverse — that encryption implies decryption, that serialization implies deserialization — can immediately grasp the mirror world where left is right and cause follows effect. Carroll's mirror is the best visualization of mathematical duality ever drawn.
+</p>
+
+<h3>V. "Who Are YOU?" — Identity, Types, and the Caterpillar's Question</h3>
+
+<p>
+The Caterpillar's question — "Who are YOU?" — is the deepest question in the book, and it maps directly onto the problem of identity in programming. Is Alice the same Alice after she changes size? Is an object the same object after you mutate its properties? Is a variable the same variable after reassignment? In statically typed languages, identity is bound to type: you are what you were declared to be. In dynamically typed languages, identity is fluid — you are whatever you currently hold. Alice lives in a dynamically typed world, and it terrifies her.
+</p>
+
+<p>
+The Caterpillar, sitting on his mushroom, is the type checker: impassive, demanding precise self-identification, and entirely unsympathetic to the claim that you used to be something else. "Explain yourself," he says, and Alice cannot — because she has been mutated so many times that she no longer knows what type she is. This is not a whimsical problem. It is the central problem of software engineering: how do you maintain identity and correctness across transformations?
+</p>
+
+</div><!-- end .essay -->
+</div><!-- end tab-overview -->
+
+<!-- ============ TAB: DESIGN EVOLUTION ============ -->
+<div class="w-panel" id="tab-evolution">
+<div class="timeline">
+
+  <div class="timeline-entry">
+    <div class="timeline-marker">
+      <div class="phase">Origin</div>
+      <div class="date">Early 2025</div>
+    </div>
+    <div class="timeline-body">
+      <h4>The Literary Analogy Emerges</h4>
+      <p>During a conversation about algorithms and data structures, the Carroll parallels surface spontaneously. The rabbit hole metaphor is too obvious, but the Tea Party as infinite loop and the Queen as adversarial specification are fresh. A pedagogical framework begins to crystallize.</p>
+      <a href="/conversation/585" class="conv-link">View: Algorithms in Wonderland (148p)</a>
+    </div>
+  </div>
+
+  <div class="timeline-entry">
+    <div class="timeline-marker">
+      <div class="phase">Expansion</div>
+      <div class="date">Mid 2025</div>
+    </div>
+    <div class="timeline-body">
+      <h4>CS via PKD: Parallel Track</h4>
+      <p>A separate conversation explores computer science through Philip K. Dick's reality-bending fiction. The structural similarity is noted: both Carroll and PKD use narrative to make abstract system properties (instability, recursion, identity loss) emotionally legible.</p>
+      <a href="/conversation/639" class="conv-link">View: Computer Science via PKD (18p)</a>
+    </div>
+  </div>
+
+  <div class="timeline-entry">
+    <div class="timeline-marker">
+      <div class="phase">Deepening</div>
+      <div class="date">Mid 2025</div>
+    </div>
+    <div class="timeline-body">
+      <h4>Chomskyan Linguistics as Bridge</h4>
+      <p>A 233-page deep dive into formal linguistics (Chomsky, generative grammar, language as computation) provides the theoretical backbone. Carroll was a logician; his nonsense is formally structured. The connection between formal grammar and Wonderland's rule systems becomes explicit.</p>
+      <a href="/conversation/573" class="conv-link">View: Chomskyan Linguistics Debate (233p)</a>
+    </div>
+  </div>
+
+  <div class="timeline-entry">
+    <div class="timeline-marker">
+      <div class="phase">Application</div>
+      <div class="date">Late 2025</div>
+    </div>
+    <div class="timeline-body">
+      <h4>Game Ideas from Wonderland Logic</h4>
+      <p>The Wonderland framework feeds back into game design: a puzzle game based on logical inversion (Looking-Glass rules), a narrative game where the player must debug a broken protocol (Tea Party), and an educational game where size changes teach state management.</p>
+    </div>
+  </div>
+
+  <div class="timeline-entry">
+    <div class="timeline-marker">
+      <div class="phase">Semiotics</div>
+      <div class="date">Late 2025</div>
+    </div>
+    <div class="timeline-body">
+      <h4>Peirce, Eco, and Sign Systems</h4>
+      <p>A conversation tracing semiotics from Peirce to Eco connects to the Wonderland framework: Carroll's wordplay is a semiotic system where signifiers detach from signified. "When I use a word," Humpty Dumpty says, "it means just what I choose it to mean." This is, formally, an argument about naming conventions and scope.</p>
+      <a href="/conversation/556" class="conv-link">View: Semiotics Evolution (19p)</a>
+    </div>
+  </div>
+
+  <div class="timeline-entry">
+    <div class="timeline-marker">
+      <div class="phase">Network</div>
+      <div class="date">2025</div>
+    </div>
+    <div class="timeline-body">
+      <h4>Illuminatus Character Graph</h4>
+      <p>Building a network graph of characters in the Illuminatus! trilogy (another rule-bending narrative) inspires thinking about how to visualize the connections between Carroll scenes and CS concepts as a structured map rather than a linear essay.</p>
+      <a href="/conversation/610" class="conv-link">View: Network Graph for Illuminatus Characters (26p)</a>
+    </div>
+  </div>
+
+  <div class="timeline-entry">
+    <div class="timeline-marker">
+      <div class="phase">Synthesis</div>
+      <div class="date">2026</div>
+    </div>
+    <div class="timeline-body">
+      <h4>Dreambase as Wonderland</h4>
+      <p>The Dreambase project itself becomes a Wonderland: a system where clicking "Go deeper" takes you down rabbit holes, where conversations change shape depending on how you approach them, and where the rules of navigation are consistent but surprising. The showcase page you are reading is the meta-level: Wonderland describing itself.</p>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ============ TAB: KEY QUOTES ============ -->
+<div class="w-panel" id="tab-quotes">
+
+<div class="quote-section-label">From the Archive</div>
+
+<div class="quote-archive">
+  <blockquote>"The Alice books are pedagogy in disguise. Every scene teaches a concept through the feeling of encountering it — not through explanation, but through vertigo."</blockquote>
+  <div class="attribution">— Ted, Algorithms in Wonderland conversation</div>
+</div>
+
+<div class="quote-archive">
+  <blockquote>"What if you taught recursion by having the student fall down a rabbit hole that contains a smaller rabbit hole that contains a smaller rabbit hole? Not as a metaphor — as the actual interface."</blockquote>
+  <div class="attribution">— Ted, on recursive pedagogical design</div>
+</div>
+
+<div class="quote-archive">
+  <blockquote>"The Tea Party is a deadlock. Not a metaphor for a deadlock. It IS a deadlock. Two threads waiting on each other, and Time (the scheduler) is frozen."</blockquote>
+  <div class="attribution">— Ted, CS via PKD conversation</div>
+</div>
+
+<div class="quote-archive">
+  <blockquote>"Every system, if you follow its rules far enough, becomes absurd. Carroll understood this. The Queen's court is what happens when you implement a specification literally."</blockquote>
+  <div class="attribution">— Ted, on adversarial systems</div>
+</div>
+
+<div class="quote-section-label">From the Source</div>
+
+<div class="quote-literary">
+  <blockquote>"Begin at the beginning, and go on till you come to the end: then stop."</blockquote>
+  <div class="attribution">— The King, Alice's Adventures in Wonderland (1865)</div>
+</div>
+
+<div class="quote-literary">
+  <blockquote>"It takes all the running you can do, to keep in the same place."</blockquote>
+  <div class="attribution">— The Red Queen, Through the Looking-Glass (1871)</div>
+</div>
+
+<div class="quote-literary">
+  <blockquote>"When I use a word, it means just what I choose it to mean — neither more nor less."</blockquote>
+  <div class="attribution">— Humpty Dumpty, Through the Looking-Glass (1871)</div>
+</div>
+
+<div class="quote-literary">
+  <blockquote>"I can't go back to yesterday because I was a different person then."</blockquote>
+  <div class="attribution">— Alice, Alice's Adventures in Wonderland (1865)</div>
+</div>
+
+</div>
+
+<!-- ============ TAB: TEXTS & ALLUSIONS ============ -->
+<div class="w-panel" id="tab-allusions">
+
+<div class="allusion-grid">
+
+  <div class="allusion-card">
+    <div class="allusion-literary">
+      <h4>Wonderland</h4>
+      <div class="scene">The Rabbit Hole</div>
+      <p>Alice follows a White Rabbit down a hole and falls through a space where shelves, maps, and marmalade jars drift past. The fall is long, slow, and has no visible bottom.</p>
+    </div>
+    <div class="allusion-cs">
+      <h4>Computer Science</h4>
+      <div class="concept">Entering a Complex System</div>
+      <p>The first time you open a large codebase: familiar objects (files, functions, variables) in an unfamiliar arrangement, and no clear path to the bottom. The fall is the onboarding experience.</p>
+    </div>
+    <div class="allusion-connector">The deeper you go, the less the surface rules apply. Both journeys reward persistence over panic.</div>
+  </div>
+
+  <div class="allusion-card">
+    <div class="allusion-literary">
+      <h4>Wonderland</h4>
+      <div class="scene">Drink Me / Eat Me (Size Changes)</div>
+      <p>Alice shrinks and grows unpredictably based on what she consumes. Each change alters her relationship to the environment — doors too small, tables too high.</p>
+    </div>
+    <div class="allusion-cs">
+      <h4>Computer Science</h4>
+      <div class="concept">State Mutation &amp; Side Effects</div>
+      <p>Mutable state: a variable changes value in place, and every other part of the system that references it sees the change. The environment shifts around you because you shifted.</p>
+    </div>
+    <div class="allusion-connector">In both cases, the protagonist cannot undo the transformation — only apply another one and hope the compound result is useful.</div>
+  </div>
+
+  <div class="allusion-card">
+    <div class="allusion-literary">
+      <h4>Wonderland</h4>
+      <div class="scene">The Mad Tea Party</div>
+      <p>An endless tea-time where Time has stopped. The participants cycle through seats, consume cups, and the Dormouse sleeps through everything. No one can leave.</p>
+    </div>
+    <div class="allusion-cs">
+      <h4>Computer Science</h4>
+      <div class="concept">Infinite Loop / Deadlock / Resource Leak</div>
+      <p>A process that cannot terminate, consuming resources (dirty teacups) without ever triggering cleanup. The scheduler (Time) is frozen, so no context switch is possible.</p>
+    </div>
+    <div class="allusion-connector">The characters know they're stuck but can't diagnose the root cause — they blame each other instead of the halted scheduler.</div>
+  </div>
+
+  <div class="allusion-card">
+    <div class="allusion-literary">
+      <h4>Wonderland</h4>
+      <div class="scene">The Queen's Croquet / Trial</div>
+      <p>Croquet with live flamingos (uncooperative tools) and hedgehogs (autonomous balls). A trial where the verdict precedes the evidence. "Off with their heads!" as universal error handler.</p>
+    </div>
+    <div class="allusion-cs">
+      <h4>Computer Science</h4>
+      <div class="concept">Adversarial Systems / Byzantine Faults</div>
+      <p>Systems where not every participant cooperates, tools have their own agency, and the specification is hostile. Byzantine fault tolerance addresses exactly this: how to get correct results when some nodes are lying.</p>
+    </div>
+    <div class="allusion-connector">Alice's solution — rejecting the system's authority — maps to the principle that sometimes the only correct response to a broken specification is to refuse it.</div>
+  </div>
+
+  <div class="allusion-card">
+    <div class="allusion-literary">
+      <h4>Looking-Glass</h4>
+      <div class="scene">The Mirror World / Red Queen's Race</div>
+      <p>Everything runs backwards: you must run to stay still, dessert comes first, the White Queen remembers the future. The rules are consistent but inverted.</p>
+    </div>
+    <div class="allusion-cs">
+      <h4>Computer Science</h4>
+      <div class="concept">Inversion / Duality / Amortized Cost</div>
+      <p>Bitwise NOT, matrix transposition, encryption/decryption duality. The Red Queen's Race is amortized complexity: constant work just to maintain current state, with no apparent progress.</p>
+    </div>
+    <div class="allusion-connector">The mirror preserves structure while reversing orientation — exactly what a mathematical dual does.</div>
+  </div>
+
+  <div class="allusion-card">
+    <div class="allusion-literary">
+      <h4>Wonderland</h4>
+      <div class="scene">The Caterpillar: "Who Are YOU?"</div>
+      <p>The Caterpillar demands Alice identify herself. She cannot — she has changed so many times that she no longer knows what she is. The Caterpillar is unimpressed.</p>
+    </div>
+    <div class="allusion-cs">
+      <h4>Computer Science</h4>
+      <div class="concept">Type Systems / Identity / Reflection</div>
+      <p>Static typing demands: declare what you are and stay that way. Dynamic typing permits: be whatever you currently hold. Alice is dynamically typed, and the Caterpillar is a strict type checker.</p>
+    </div>
+    <div class="allusion-connector">The question "Who are YOU?" is isomorphic to typeof(alice) — and the answer changes depending on when you ask.</div>
+  </div>
+
+  <div class="allusion-card">
+    <div class="allusion-literary">
+      <h4>Looking-Glass</h4>
+      <div class="scene">Humpty Dumpty on Meaning</div>
+      <p>"When I use a word, it means just what I choose it to mean." He pays words extra to mean different things on different days.</p>
+    </div>
+    <div class="allusion-cs">
+      <h4>Computer Science</h4>
+      <div class="concept">Naming / Scope / Dynamic Dispatch</div>
+      <p>Variable naming is arbitrary. Scope determines what a name resolves to. Dynamic dispatch means the same method name does different things depending on the object. Humpty Dumpty is describing runtime polymorphism.</p>
+    </div>
+    <div class="allusion-connector">"The question is," said Humpty Dumpty, "which is to be master — that's all." In programming: who controls the namespace?</div>
+  </div>
+
+</div>
+</div>
+
+<!-- ============ TAB: CONCEPT MAP ============ -->
+<div class="w-panel" id="tab-concepts">
+
+<p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:1.5rem;line-height:1.5;">
+A structured matrix connecting Carroll's literary scenes to CS concepts, pedagogical applications, and Dreambase rabbit holes. Each row is a thread you can follow deeper.
+</p>
+
+<table class="concept-matrix">
+<thead>
+<tr>
+  <th>Carroll Scene</th>
+  <th>CS Concept</th>
+  <th>What It Teaches</th>
+  <th>Rabbit Hole</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>The Rabbit Hole</td>
+  <td>System entry / onboarding</td>
+  <td>How to navigate unfamiliar complexity without freezing</td>
+  <td><a href="/collection/building-dreams" class="rabbit-link">Building Dreams</a></td>
+</tr>
+<tr>
+  <td>Drink Me / Eat Me</td>
+  <td>State mutation, side effects</td>
+  <td>Why mutable state is confusing and how immutability helps</td>
+  <td><a href="/ideas?category=game" class="rabbit-link">Game Ideas</a></td>
+</tr>
+<tr>
+  <td>The Mad Tea Party</td>
+  <td>Infinite loops, deadlock, resource leaks</td>
+  <td>How to recognize and escape stuck processes</td>
+  <td><a href="/collection/dark-horses" class="rabbit-link">Dark Horses</a></td>
+</tr>
+<tr>
+  <td>Queen's Croquet</td>
+  <td>Adversarial systems, Byzantine faults</td>
+  <td>How to build reliable systems from unreliable components</td>
+  <td><a href="/collection/scholarly-to-games" class="rabbit-link">Scholarly to Games</a></td>
+</tr>
+<tr>
+  <td>The Trial</td>
+  <td>Formal verification, proof systems</td>
+  <td>Why the order of operations matters in reasoning</td>
+  <td><a href="/collection/philosophy" class="rabbit-link">Philosophy</a></td>
+</tr>
+<tr>
+  <td>Looking-Glass / Red Queen</td>
+  <td>Inversion, duality, amortized cost</td>
+  <td>How symmetry and reversal reveal hidden structure</td>
+  <td><a href="/scholar/proclus" class="rabbit-link">Proclus</a></td>
+</tr>
+<tr>
+  <td>The Caterpillar</td>
+  <td>Type systems, identity, reflection</td>
+  <td>How type discipline prevents identity crises at scale</td>
+  <td><a href="/scholar/pico-della-mirandola" class="rabbit-link">Pico della Mirandola</a></td>
+</tr>
+<tr>
+  <td>Humpty Dumpty</td>
+  <td>Naming, scope, dynamic dispatch</td>
+  <td>Who controls meaning — the author or the runtime?</td>
+  <td><a href="/collection/pkd" class="rabbit-link">Philip K. Dick</a></td>
+</tr>
+<tr>
+  <td>Cheshire Cat</td>
+  <td>Abstraction, interfaces, partial application</td>
+  <td>The grin without the cat: behavior surviving the removal of implementation</td>
+  <td><a href="/values" class="rabbit-link">Values</a></td>
+</tr>
+</tbody>
+</table>
+
+</div>
+
+<!-- ============ TAB: SOURCE CONVERSATIONS ============ -->
+<div class="w-panel" id="tab-sources">
+
+<p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:1.25rem;">
+The {{ conversations|length }} conversations that feed this showcase, ranked by depth of engagement.
+</p>
+
+<div class="source-list">
+  {% for c in conversations %}
+  <a href="/conversation/{{ c.id }}" class="source-conv">
+    <span class="source-badge {{ c.source_name }}">{{ c.source_name }}</span>
+    <div style="flex:1">
+      <div class="title">{{ c.title }}</div>
+      {% if c.summary %}
+      <div class="summary">{{ c.summary[:160] }}{% if c.summary|length > 160 %}...{% endif %}</div>
+      {% endif %}
+    </div>
+    <span class="pages">{{ "%.0f"|format(c.estimated_pages or 0) }}p</span>
+  </a>
+  {% endfor %}
+</div>
+
+</div>
+
+<!-- ============ TAB: RABBIT HOLES ============ -->
+<div class="w-panel" id="tab-rabbitholes">
+
+<p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:1.5rem;line-height:1.5;">
+Every showcase is a node in a larger network. These are the paths that lead outward from Wonderland into the rest of Dreambase.
+</p>
+
+<div class="rabbit-grid">
+
+  <a href="/collection/philosophy" class="rabbit-card" style="border-top-color:#9c27b0">
+    <h4>Language &amp; Logic</h4>
+    <div class="rabbit-desc">Formal grammar, Chomskyan linguistics, Peirce's semiotics, and the question of whether language computes or merely represents.</div>
+    <div class="rabbit-meta">19 conversations in Philosophy collection</div>
+  </a>
+
+  <a href="/collection/pkd" class="rabbit-card" style="border-top-color:#e74c3c">
+    <h4>PKD / Reality Systems</h4>
+    <div class="rabbit-desc">Philip K. Dick's fiction as thought experiments about systems where the substrate is unreliable — the same vertigo Alice feels, scaled to ontology.</div>
+    <div class="rabbit-meta">18 conversations in PKD collection</div>
+  </a>
+
+  <a href="/ideas?category=educational" class="rabbit-card" style="border-top-color:#ff9800">
+    <h4>Pedagogy &amp; Game-Based Learning</h4>
+    <div class="rabbit-desc">How games teach through mechanics, not lectures. The Wonderland framework is a specific instance of implicit pedagogy — learning by navigating strange rules.</div>
+    <div class="rabbit-meta">337 educational-tagged conversations</div>
+  </a>
+
+  <a href="/ideas?category=game" class="rabbit-card" style="border-top-color:#4caf50">
+    <h4>Game Ideas</h4>
+    <div class="rabbit-desc">628 game concepts from sketches to prototypes — including puzzle games, autobattlers, and educational games that all touch the logic-meets-play territory.</div>
+    <div class="rabbit-meta">628 game ideas cataloged</div>
+  </a>
+
+  <a href="/collection/scholarly-to-games" class="rabbit-card" style="border-top-color:#e8a838">
+    <h4>Scholarly Mining for Game Ideas</h4>
+    <div class="rabbit-desc">Where reading Renaissance texts produces game mechanics. The same transmutation Carroll performs: scholarly content becoming playable structure.</div>
+    <div class="rabbit-meta">11 conversations at the crossover</div>
+  </a>
+
+  <a href="/scholar/robert-anton-wilson" class="rabbit-card" style="border-top-color:#ff9800">
+    <h4>Robert Anton Wilson</h4>
+    <div class="rabbit-desc">Reality tunnels, Chapel Perilous, and model agnosticism. RAW's guerrilla ontology is Carroll's Wonderland applied to epistemology.</div>
+    <div class="rabbit-meta">6 conversations, 426 pages</div>
+  </a>
+
+  <a href="/collection/dark-horses" class="rabbit-card" style="border-top-color:#ff9800">
+    <h4>Dark Horses</h4>
+    <div class="rabbit-desc">The recondite and the unexpectedly deep: esoteric sigil apps, microscopic fungus games, geomancy calculators. Wonderland's spirit lives here.</div>
+    <div class="rabbit-meta">18 conversations</div>
+  </a>
+
+  <a href="/viz" class="rabbit-card" style="border-top-color:#2196f3">
+    <h4>Dreambase Visualizations</h4>
+    <div class="rabbit-desc">Tufte-inspired data graphics showing the shape of the entire archive: timelines, topic constellations, sentiment rivers, and the idea funnel.</div>
+    <div class="rabbit-meta">The bird's-eye view</div>
+  </a>
+
+</div>
+</div>
+
+<!-- ============ JS ============ -->
+<script>
+function showTab(name) {
+  document.querySelectorAll('.w-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.w-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>

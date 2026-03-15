@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ showcase.title }} — Dreambase</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+.showcase-hero {
+  padding: 2.5rem 2rem 2rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  border-left: 5px solid {{ showcase.color }};
+}
+.showcase-hero h2 { font-size: 2rem; margin-bottom: 0.3rem; }
+.showcase-subtitle {
+  font-size: 1rem; color: var(--text-muted); font-style: italic;
+  margin-bottom: 1rem; line-height: 1.5;
+}
+.showcase-hook {
+  font-size: 1.1rem; color: var(--accent); font-style: italic;
+  margin-bottom: 1.2rem; line-height: 1.5;
+}
+.showcase-stats {
+  display: flex; gap: 1.5rem; flex-wrap: wrap;
+  color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.8rem;
+}
+.showcase-stats strong { color: var(--orange); }
+.showcase-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+
+.showcase-tabs {
+  display: flex; gap: 0; padding: 0 2rem;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.tab-btn {
+  padding: 0.75rem 1.5rem; background: none; border: none;
+  border-bottom: 3px solid transparent; color: var(--text-muted);
+  font-size: 0.9rem; cursor: pointer; white-space: nowrap;
+  transition: color 0.2s, border-color 0.2s;
+}
+.tab-btn:hover { color: var(--text); background: none; }
+.tab-btn.active { color: {{ showcase.color }}; border-bottom-color: {{ showcase.color }}; background: none; }
+.tab-content { display: none; padding: 2rem; }
+.tab-content.active { display: block; }
+
+/* Essay */
+.essay { max-width: 720px; line-height: 1.8; font-size: 0.95rem; color: var(--text); }
+.essay h3 { color: {{ showcase.color }}; margin: 2rem 0 0.8rem; font-size: 1.2rem; }
+.essay p { margin-bottom: 1.2rem; }
+
+/* Pattern catalog */
+.pattern-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+.pattern-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 1.5rem; border-left: 4px solid {{ showcase.color }};
+  transition: border-color 0.2s, transform 0.1s;
+}
+.pattern-card:hover { border-color: {{ showcase.color }}; transform: translateY(-1px); }
+.pattern-card h4 { font-size: 1.05rem; margin-bottom: 0.4rem; color: var(--text); }
+.pattern-card .pattern-type {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em;
+  color: {{ showcase.color }}; margin-bottom: 0.5rem;
+}
+.pattern-card p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.5rem; }
+.pattern-card .projects {
+  font-size: 0.8rem; color: var(--text-muted); opacity: 0.7;
+}
+
+/* Complexity tiers */
+.tier-badge {
+  display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px;
+  font-size: 0.72rem; font-weight: 600; margin-right: 0.3rem;
+}
+.tier-fundamental { background: #1b5e20; color: #a5d6a7; }
+.tier-intermediate { background: #e65100; color: #ffcc80; }
+.tier-advanced { background: #b71c1c; color: #ef9a9a; }
+
+/* Concept matrix */
+.matrix-table {
+  width: 100%; border-collapse: collapse; font-size: 0.85rem;
+}
+.matrix-table th {
+  text-align: left; padding: 0.6rem 0.8rem;
+  border-bottom: 2px solid var(--border); color: {{ showcase.color }};
+  font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.matrix-table td {
+  padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.matrix-table td:first-child { color: var(--text); font-weight: 600; }
+.matrix-table a { color: var(--accent); }
+
+/* Conversations list */
+.conv-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.conv-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1rem 1.25rem; background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; border-left: 3px solid {{ showcase.color }};
+}
+.conv-item:hover { border-color: {{ showcase.color }}; }
+.conv-item .title { font-weight: 600; font-size: 0.95rem; }
+.conv-item .meta { font-size: 0.8rem; color: var(--text-muted); }
+.conv-item .pages { font-size: 0.85rem; color: var(--orange); font-weight: 600; }
+
+/* Rabbit holes */
+.rabbit-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+.rabbit-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  padding: 1.25rem; text-decoration: none; color: var(--text);
+  transition: border-color 0.2s, transform 0.1s;
+}
+.rabbit-card:hover { border-color: var(--accent); transform: translateY(-2px); text-decoration: none; }
+.rabbit-card h4 { font-size: 0.95rem; margin-bottom: 0.3rem; }
+.rabbit-card p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; }
+</style>
+</head>
+<body>
+<header>
+  <h1><a href="/">Dreambase</a></h1>
+  <nav>
+    <a href="/">Browse</a> <a href="/viz">Viz</a> <a href="/ideas">Ideas</a>
+    <a href="/showcases">Showcases</a> <a href="/collections">Collections</a>
+    <a href="/scholars">Scholars</a> <a href="/projects">Projects</a> <a href="/values">Values</a>
+  </nav>
+</header>
+
+<div class="showcase-hero">
+  <h2>{{ showcase.title }}</h2>
+  <div class="showcase-subtitle">{{ showcase.subtitle }}</div>
+  <div class="showcase-hook">{{ showcase.hook }}</div>
+  <div class="showcase-stats">
+    <span><strong>{{ conversations|length }}</strong> source conversations</span>
+    <span><strong>{{ total_pages }}</strong> pages of exploration</span>
+    <span><strong>{{ total_messages }}</strong> messages</span>
+  </div>
+  <div class="showcase-stats">
+    <span><strong>9</strong> injection patterns catalogued</span>
+  </div>
+  <div class="showcase-tags">
+    {% for t in showcase.tags %}<span class="pill">{{ t }}</span>{% endfor %}
+  </div>
+</div>
+
+<div class="showcase-tabs">
+  <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="showTab('patterns')">Pattern Catalog</button>
+  <button class="tab-btn" onclick="showTab('matrix')">Concept Matrix</button>
+  <button class="tab-btn" onclick="showTab('evolution')">Design Evolution</button>
+  <button class="tab-btn" onclick="showTab('conversations')">Source Conversations</button>
+  <button class="tab-btn" onclick="showTab('rabbitholes')">Rabbit Holes</button>
+</div>
+
+<!-- OVERVIEW TAB -->
+<div id="tab-overview" class="tab-content active">
+<div class="essay">
+<p>Every non-trivial system reaches a moment where its designers must answer a question: <em>how do users inject their own rules?</em></p>
+
+<p>This is the engineering problem that separates a script from a platform. A script does one thing. A platform provides seams — deliberate openings in the architecture where custom logic can be inserted without modifying the core. These seams have names: hooks, middleware, plugins, callbacks, decorators, event buses, strategy patterns, pipeline steps.</p>
+
+<h3>The Taxonomy of Extensibility</h3>
+
+<p>Across Ted's 33 projects, every extensibility pattern falls into one of three families. <strong>Interception patterns</strong> (hooks, middleware, interceptors) let custom logic wrap or modify behavior at predefined points. <strong>Composition patterns</strong> (plugins, pipelines, strategy) let users assemble behavior from swappable components. <strong>Reaction patterns</strong> (callbacks, event buses, observers) let custom logic respond to events without the core knowing what will respond.</p>
+
+<p>The choice between these families is never purely technical. It encodes assumptions about who the user is and how much they should be trusted. A hook says: "I'll call you at this exact moment." A plugin says: "Register yourself and I'll discover you." An event bus says: "I don't even know you exist, but you can listen."</p>
+
+<h3>From Games to Knowledge Systems</h3>
+
+<p>The MTG Draft Overlay needed card evaluation logic that changed with every set release — a classic strategy pattern. The Alchemy Board Game needed transmutation rules that players could discover and chain — a pipeline. The Tarot Engine needed spread layouts that occultists could customize — a configuration-driven template system. Dreambase itself is built on Flask routes, Jinja2 templates, and sidecar JSON files — three layers of injection.</p>
+
+<h3>The Meta-Pattern</h3>
+
+<p>The deepest lesson from cataloguing these patterns: <strong>extensibility is a form of humility</strong>. Every hook, every plugin API, every event bus is an admission that the designer doesn't know everything. The best systems are the ones that make it easiest to inject logic their creators never imagined.</p>
+</div>
+</div>
+
+<!-- PATTERN CATALOG TAB -->
+<div id="tab-patterns" class="tab-content">
+<h3 style="margin-bottom: 1rem; color: var(--text-muted);">9 Injection Patterns Across 33 Projects</h3>
+<div class="pattern-grid">
+
+<div class="pattern-card">
+  <div class="pattern-type">Interception</div>
+  <h4>Hooks</h4>
+  <span class="tier-badge tier-fundamental">Fundamental</span>
+  <p>Named points in execution where custom functions are called. The simplest injection pattern: "I'll call your function here."</p>
+  <p>Flask's <code>before_request</code> and <code>after_request</code>. Git hooks. Claude Code's pre/post-tool hooks. WordPress's entire ecosystem.</p>
+  <div class="projects">Used in: Dreambase, Claude Code skills, Tarot Engine</div>
+</div>
+
+<div class="pattern-card">
+  <div class="pattern-type">Interception</div>
+  <h4>Middleware</h4>
+  <span class="tier-badge tier-intermediate">Intermediate</span>
+  <p>A chain of functions that each transform a request/response, passing it to the next. The Russian doll of web engineering.</p>
+  <p>Express.js middleware stacks. Flask's WSGI middleware. The MarxistTradition site's auth + logging + CORS chain.</p>
+  <div class="projects">Used in: MarxistTradition, MarxistPortal, MTGDraftOverlay</div>
+</div>
+
+<div class="pattern-card">
+  <div class="pattern-type">Interception</div>
+  <h4>Decorators</h4>
+  <span class="tier-badge tier-intermediate">Intermediate</span>
+  <p>Functions that wrap other functions, adding behavior without modifying the original. Python's <code>@route</code> is the most famous example.</p>
+  <p>Every Flask route in Dreambase is a decorated function. The SMS analysis pipeline uses decorators for caching and retries.</p>
+  <div class="projects">Used in: Dreambase (app.py), SMS Archaeology, Claude Data Tools</div>
+</div>
+
+<div class="pattern-card">
+  <div class="pattern-type">Composition</div>
+  <h4>Plugins</h4>
+  <span class="tier-badge tier-advanced">Advanced</span>
+  <p>Self-registering modules that extend a host application. The host discovers plugins at runtime — maximum decoupling.</p>
+  <p>The Chiptune Synth's waveform plugins. MTG Draft Overlay's card evaluator plugins (one per set). VS Code extensions as a design model.</p>
+  <div class="projects">Used in: Chiptune Synth, MTGDraftOverlay, Draft Academy</div>
+</div>
+
+<div class="pattern-card">
+  <div class="pattern-type">Composition</div>
+  <h4>Pipelines</h4>
+  <span class="tier-badge tier-fundamental">Fundamental</span>
+  <p>Sequential processing steps where each step transforms data and passes it forward. Unix pipes made architectural.</p>
+  <p>Megabase's ingestion pipeline: parse → normalize → insert → index → summarize. Each step is a standalone script.</p>
+  <div class="projects">Used in: Megabase (7 ingestors), SMS Archaeology, Twitter Archive, Capital Interpreter</div>
+</div>
+
+<div class="pattern-card">
+  <div class="pattern-type">Composition</div>
+  <h4>Strategy Pattern</h4>
+  <span class="tier-badge tier-intermediate">Intermediate</span>
+  <p>Interchangeable algorithms behind a common interface. The caller picks which strategy to use at runtime.</p>
+  <p>MTG Draft Overlay's card rating algorithms (one per format). The Alchemy Board Game's scoring functions (points vs. transmutation chains).</p>
+  <div class="projects">Used in: MTGDraftOverlay, Alchemy Board Game, Autobattler Proto</div>
+</div>
+
+<div class="pattern-card">
+  <div class="pattern-type">Composition</div>
+  <h4>Configuration / Templates</h4>
+  <span class="tier-badge tier-fundamental">Fundamental</span>
+  <p>Behavior defined in data files (JSON, YAML, Jinja2) rather than code. The least-code injection pattern.</p>
+  <p>Dreambase's sidecar JSON files. The Tarot Engine's spread definitions. The Golden Dawn Curriculum's grade configurations.</p>
+  <div class="projects">Used in: Dreambase (sidecars), Tarot Engine, Golden Dawn Curriculum, Hermetic Reading List</div>
+</div>
+
+<div class="pattern-card">
+  <div class="pattern-type">Reaction</div>
+  <h4>Callbacks</h4>
+  <span class="tier-badge tier-fundamental">Fundamental</span>
+  <p>Functions passed as arguments, called when an event occurs. The building block of async programming.</p>
+  <p>JavaScript event handlers in every Dreambase template. The Interactive Platonic Solid Viewer's rotation callbacks. Pygame event loops.</p>
+  <div class="projects">Used in: All web templates, Kabbalah Tree Viz, Bubble Prototype, Mancala</div>
+</div>
+
+<div class="pattern-card">
+  <div class="pattern-type">Reaction</div>
+  <h4>Event Bus / Observer</h4>
+  <span class="tier-badge tier-advanced">Advanced</span>
+  <p>A central dispatcher that routes events to registered listeners. The core decouples completely from the extensions.</p>
+  <p>The Electron IPC bus in MTG Draft Overlay. The Memory Palace's Three.js scene event system. DOM CustomEvents in Dreambase tabs.</p>
+  <div class="projects">Used in: MTGDraftOverlay (Electron IPC), Memory Palace, Overlay framework</div>
+</div>
+
+</div>
+</div>
+
+<!-- CONCEPT MATRIX TAB -->
+<div id="tab-matrix" class="tab-content">
+<h3 style="margin-bottom: 1rem; color: var(--text-muted);">Pattern × Project Matrix</h3>
+<table class="matrix-table">
+<thead>
+<tr>
+  <th>Pattern</th>
+  <th>Family</th>
+  <th>Complexity</th>
+  <th>Best For</th>
+  <th>Dreambase Example</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>Hooks</td><td>Interception</td><td>Low</td><td>Pre/post processing at known points</td><td>Flask before_request</td></tr>
+<tr><td>Middleware</td><td>Interception</td><td>Medium</td><td>Request/response transformation chains</td><td>—</td></tr>
+<tr><td>Decorators</td><td>Interception</td><td>Medium</td><td>Cross-cutting concerns (auth, logging, caching)</td><td>@app.route, every route</td></tr>
+<tr><td>Plugins</td><td>Composition</td><td>High</td><td>Third-party extensions, set-specific logic</td><td>—</td></tr>
+<tr><td>Pipelines</td><td>Composition</td><td>Low</td><td>Sequential data processing with swappable steps</td><td>7 ingestor scripts</td></tr>
+<tr><td>Strategy</td><td>Composition</td><td>Medium</td><td>Interchangeable algorithms</td><td>Sort options (pages/date/messages/title)</td></tr>
+<tr><td>Config/Templates</td><td>Composition</td><td>Low</td><td>Behavior in data, not code</td><td>Sidecar JSON, Jinja2 templates</td></tr>
+<tr><td>Callbacks</td><td>Reaction</td><td>Low</td><td>Event-driven UI, async operations</td><td>Tab onclick handlers</td></tr>
+<tr><td>Event Bus</td><td>Reaction</td><td>High</td><td>Fully decoupled communication</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- DESIGN EVOLUTION TAB -->
+<div id="tab-evolution" class="tab-content">
+<h3 style="margin-bottom: 1rem; color: var(--text-muted);">How the approach to extensibility evolved</h3>
+<div style="max-width: 700px;">
+
+<div style="padding: 1rem 0; border-bottom: 1px solid var(--border);">
+  <div style="color: {{ showcase.color }}; font-size: 0.8rem; font-weight: 600;">PHASE 1: SCRIPTS</div>
+  <div style="font-weight: 600; margin: 0.3rem 0;">Everything in one file</div>
+  <div style="font-size: 0.88rem; color: var(--text-muted);">Early projects (build_chats.py, game_ideas.py) were monolithic scripts. No extensibility needed because no one else would use them. The "injection point" was editing the source code.</div>
+</div>
+
+<div style="padding: 1rem 0; border-bottom: 1px solid var(--border);">
+  <div style="color: {{ showcase.color }}; font-size: 0.8rem; font-weight: 600;">PHASE 2: CONFIGURATION</div>
+  <div style="font-weight: 600; margin: 0.3rem 0;">Behavior in JSON, not code</div>
+  <div style="font-size: 0.88rem; color: var(--text-muted);">The Tarot Engine and Golden Dawn Curriculum moved definitions to JSON files. Users could add spreads or grades without touching Python. First real separation of logic from content.</div>
+</div>
+
+<div style="padding: 1rem 0; border-bottom: 1px solid var(--border);">
+  <div style="color: {{ showcase.color }}; font-size: 0.8rem; font-weight: 600;">PHASE 3: PIPELINES</div>
+  <div style="font-weight: 600; margin: 0.3rem 0;">Composable processing steps</div>
+  <div style="font-size: 0.88rem; color: var(--text-muted);">Megabase's ingestion architecture: 7 independent scripts that each parse a source and feed a shared database. Each ingestor is a pipeline step. Adding a new source means writing one new script — zero changes to existing code.</div>
+</div>
+
+<div style="padding: 1rem 0; border-bottom: 1px solid var(--border);">
+  <div style="color: {{ showcase.color }}; font-size: 0.8rem; font-weight: 600;">PHASE 4: SIDECAR PATTERN</div>
+  <div style="font-weight: 600; margin: 0.3rem 0;">LLM-generated content alongside code</div>
+  <div style="font-size: 0.88rem; color: var(--text-muted);">Dreambase's sidecar JSON files let ChatGPT-generated narratives, timelines, and quotes live next to templates without being embedded in them. The code defines the structure; the sidecar provides the content.</div>
+</div>
+
+<div style="padding: 1rem 0; border-bottom: 1px solid var(--border);">
+  <div style="color: {{ showcase.color }}; font-size: 0.8rem; font-weight: 600;">PHASE 5: SKILL SYSTEM</div>
+  <div style="font-weight: 600; margin: 0.3rem 0;">Self-describing, invocable units</div>
+  <div style="font-size: 0.88rem; color: var(--text-muted);">The PKD skill system (33 slash commands) is the most sophisticated injection pattern: each skill is a self-contained markdown file with a trigger condition, instructions, and arguments. Claude Code discovers and executes them at runtime. The human registers intent; the system finds the matching logic.</div>
+</div>
+
+<div style="padding: 1rem 0;">
+  <div style="color: {{ showcase.color }}; font-size: 0.8rem; font-weight: 600;">PHASE 6: AGENTIC SWARMS</div>
+  <div style="font-weight: 600; margin: 0.3rem 0;">Agents as injectable workers</div>
+  <div style="font-size: 0.88rem; color: var(--text-muted);">The Eldritch Swarm architecture: define agent roles, their inputs/outputs, and let them run in parallel. Each agent is injected into a workflow slot. The orchestrator doesn't know what the agents will do — only what they'll produce.</div>
+</div>
+
+</div>
+</div>
+
+<!-- SOURCE CONVERSATIONS TAB -->
+<div id="tab-conversations" class="tab-content">
+<h3 style="margin-bottom: 1rem; color: var(--text-muted);">{{ conversations|length }} source conversations · {{ total_pages }} pages</h3>
+<div class="conv-list">
+{% for c in conversations %}
+<a href="/conversation/{{ c.id }}" class="conv-item" style="text-decoration: none; color: var(--text);">
+  <div>
+    <div class="title">{{ c.title or 'Untitled' }}</div>
+    <div class="meta">{{ c.source_name }} · {{ c.created_at[:10] if c.created_at else 'undated' }}</div>
+  </div>
+  <div class="pages">{{ c.estimated_pages|int }}p</div>
+</a>
+{% endfor %}
+</div>
+</div>
+
+<!-- RABBIT HOLES TAB -->
+<div id="tab-rabbitholes" class="tab-content">
+<h3 style="margin-bottom: 1rem; color: var(--text-muted);">Where to go from here</h3>
+<div class="rabbit-grid">
+  <a href="/collection/building-dreams" class="rabbit-card">
+    <h4>Building Dreams Collection</h4>
+    <p>33 projects where ideas became code — the output side of all this extensibility engineering.</p>
+  </a>
+  <a href="/projects" class="rabbit-card">
+    <h4>Projects Page</h4>
+    <p>Tufte-inspired visualization of all 33 dev projects grouped by domain.</p>
+  </a>
+  <a href="/scholar/agrippa" class="rabbit-card">
+    <h4>Cornelius Agrippa</h4>
+    <p>Three Books of Occult Philosophy organized magic into natural, celestial, and ceremonial — the original plugin architecture.</p>
+  </a>
+  <a href="/wonderland/algorithms-in-wonderland" class="rabbit-card">
+    <h4>Algorithms in Wonderland</h4>
+    <p>The CS showcase where recursion, sorting, and type systems emerge from Carroll's nonsense.</p>
+  </a>
+  <a href="/collection/music-engineering" class="rabbit-card">
+    <h4>Music Engineering</h4>
+    <p>Synthesizer sound design where waveform plugins and MIDI pipeline steps are the core extensibility challenge.</p>
+  </a>
+  <a href="/wonderland/50-takeaways" class="rabbit-card">
+    <h4>50 Takeaways from LLM Work</h4>
+    <p>Architecture takeaways #26-35 cover chunking, SQLite, and the sidecar pattern in depth.</p>
+  </a>
+  <a href="/scholar/philip-k-dick" class="rabbit-card">
+    <h4>Philip K. Dick</h4>
+    <p>The Exegesis as a debugging protocol — 8,000 pages of injecting custom logic into the fabric of reality.</p>
+  </a>
+  <a href="/viz" class="rabbit-card">
+    <h4>Visualizations</h4>
+    <p>The data pipeline that powers the viz page — 9 queries, 7 charts, all from the same extensible architecture.</p>
+  </a>
+</div>
+</div>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

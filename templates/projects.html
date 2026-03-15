@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projects — Dreambase</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+/* ─── Projects page — Tufte-inspired small multiples ─────────────────────── */
+
+.projects-intro {
+  padding: 2rem 2rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.projects-intro h2 {
+  font-size: 1.4rem;
+  color: var(--text);
+  margin-bottom: 0.3rem;
+}
+.projects-intro .subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-bottom: 1.2rem;
+}
+
+/* ─── Summary statistics bar ─────────────────────────────────────────────── */
+.projects-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+.stat-item {
+  display: flex;
+  flex-direction: column;
+}
+.stat-item .num {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.stat-item .lbl {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.2rem;
+}
+.stat-divider {
+  width: 1px;
+  background: var(--border);
+  align-self: stretch;
+}
+
+/* ─── Domain legend ───────────────────────────────────────────────────────── */
+.domain-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+}
+.domain-dot {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.domain-dot .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.domain-dot .domain-count {
+  opacity: 0.6;
+  font-size: 0.65rem;
+}
+
+/* ─── Domain clusters ─────────────────────────────────────────────────────── */
+.domain-cluster {
+  margin: 1.5rem 2rem;
+}
+.domain-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid var(--border);
+}
+.domain-header h3 {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+.domain-header .domain-meta {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+.domain-header .domain-bar {
+  height: 3px;
+  border-radius: 2px;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+/* ─── Project box grid ────────────────────────────────────────────────────── */
+.project-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.project-box {
+  border-radius: 5px;
+  padding: 7px 9px 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  position: relative;
+  cursor: default;
+  transition: filter 0.15s, transform 0.15s;
+  min-height: 60px;
+}
+.project-box:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+  z-index: 2;
+}
+
+.project-box .proj-name {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.95);
+  line-height: 1.2;
+  word-break: break-word;
+  margin-bottom: 4px;
+}
+.project-box .proj-framework {
+  display: inline-block;
+  font-size: 0.55rem;
+  background: rgba(0,0,0,0.3);
+  color: rgba(255,255,255,0.8);
+  border-radius: 3px;
+  padding: 1px 4px;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.project-box .proj-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.project-box .proj-files {
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.65);
+  font-variant-numeric: tabular-nums;
+}
+.project-box .proj-git {
+  font-size: 0.7rem;
+  line-height: 1;
+}
+.project-box .proj-convos {
+  font-size: 0.58rem;
+  color: rgba(255,255,255,0.55);
+  margin-left: auto;
+}
+.project-box .proj-convos a {
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(255,255,255,0.3);
+}
+.project-box .proj-convos a:hover {
+  color: white;
+}
+
+/* Tooltip on hover */
+.project-box .proj-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  min-width: 180px;
+  max-width: 240px;
+  background: #111;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.7rem;
+  color: var(--text);
+  line-height: 1.4;
+  z-index: 100;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+}
+.project-box:hover .proj-tooltip {
+  display: block;
+}
+.proj-tooltip .tt-name {
+  font-weight: 700;
+  color: white;
+  margin-bottom: 3px;
+}
+.proj-tooltip .tt-desc {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ─── Size legend ─────────────────────────────────────────────────────────── */
+.size-legend {
+  margin: 0 2rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.size-legend .lbl {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+.size-example {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+.size-swatch {
+  background: var(--border);
+  border-radius: 3px;
+}
+</style>
+</head>
+<body>
+<header>
+  <h1><a href="/">Dreambase</a></h1>
+  <nav>
+    <a href="/">Browse</a>
+    <a href="/viz">Viz</a>
+    <a href="/ideas">Ideas</a>
+    <a href="/showcases">Showcases</a>
+    <a href="/collections">Collections</a>
+    <a href="/scholars">Scholars</a>
+    <a href="/projects" class="active">Projects</a>
+    <a href="/values">Values</a>
+  </nav>
+</header>
+
+<div class="projects-intro">
+  <h2>Dev Project Map</h2>
+  <p class="subtitle">{{ projects|length }} projects across C:\Dev and C:\OldDevProjects — box area proportional to file count</p>
+
+  <div class="projects-stats">
+    <div class="stat-item">
+      <span class="num">{{ projects|length }}</span>
+      <span class="lbl">Projects</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="num">{{ total_files }}</span>
+      <span class="lbl">Total Files</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="num">{{ git_count }}</span>
+      <span class="lbl">Git Tracked</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="num">{{ no_git_count }}</span>
+      <span class="lbl">No Git</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="num">{{ total_convos }}</span>
+      <span class="lbl">Linked Convos</span>
+    </div>
+  </div>
+
+  <div class="domain-legend">
+    {% set domain_colors = {
+      "scholarship": "#9c27b0",
+      "games":       "#4caf50",
+      "tools":       "#2196f3",
+      "music":       "#00bcd4",
+      "education":   "#ff9800"
+    } %}
+    {% for domain, projs in ordered_domains %}
+    <div class="domain-dot">
+      <span class="dot" style="background: {{ domain_colors[domain] }}"></span>
+      <span>{{ domain }}</span>
+      <span class="domain-count">{{ domain_stats[domain].count }} / {{ domain_stats[domain].files }}f</span>
+    </div>
+    {% endfor %}
+    <div class="domain-dot" style="margin-left:auto">
+      <span style="font-size:0.65rem;color:var(--text-muted)">&#9679; git &nbsp; &#9675; no git</span>
+    </div>
+  </div>
+</div>
+
+{% for domain, projs in ordered_domains %}
+{% set color = domain_colors[domain] %}
+<div class="domain-cluster">
+  <div class="domain-header">
+    <h3 style="color: {{ color }}">{{ domain }}</h3>
+    <span class="domain-meta">
+      {{ domain_stats[domain].count }} projects &middot;
+      {{ domain_stats[domain].files }} files &middot;
+      {{ domain_stats[domain].git }} with git
+    </span>
+    <div class="domain-bar" style="background:{{ color }}; width:{{ [domain_stats[domain].files // 10, 200] | min }}px; opacity:0.35"></div>
+  </div>
+
+  <div class="project-grid">
+    {% for p in projs %}
+    {# Box sizing: width ∝ sqrt(files), height varies similarly but min-bounded #}
+    {% set sz = [(p.files ** 0.55) * 6, 58] | max | int %}
+    {% set ht = [(p.files ** 0.45) * 7, 60] | max | int %}
+    {# Slightly darken for non-git projects #}
+    {% set opacity = "1.0" if p.has_git else "0.7" %}
+    <div class="project-box"
+         style="width:{{ sz }}px; min-height:{{ ht }}px; background:{{ color }}; opacity:{{ opacity }}">
+
+      <div class="proj-tooltip">
+        <div class="tt-name">{{ p.name }}</div>
+        <div class="tt-desc">{{ p.description }}</div>
+        <div style="margin-top:5px;font-size:0.65rem;color:var(--text-muted)">
+          {{ p.framework }} &middot; {{ p.files }} files
+          {% if p.has_git %}&middot; git{% endif %}
+          {% if p.conversation_ids %}&middot; {{ p.conversation_ids|length }} convos{% endif %}
+        </div>
+      </div>
+
+      <div class="proj-name">{{ p.name }}</div>
+      <span class="proj-framework">{{ p.framework }}</span>
+      <div class="proj-meta">
+        <span class="proj-files">{{ p.files }}f</span>
+        <span class="proj-git" title="{% if p.has_git %}git tracked{% else %}no git{% endif %}">
+          {% if p.has_git %}&#9679;{% else %}&#9675;{% endif %}
+        </span>
+        {% if p.conversation_ids %}
+        <span class="proj-convos">
+          <a href="/?q={{ p.name }}" title="Search conversations">{{ p.conversation_ids|length }}&#x1F4AC;</a>
+        </span>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endfor %}
+
+<div class="size-legend">
+  <span class="lbl">Box area &prop; file count &nbsp;&mdash;</span>
+  <div class="size-example">
+    <div class="size-swatch" style="width:22px;height:22px" title="~14 files"></div>
+    <div class="size-swatch" style="width:36px;height:36px" title="~50 files"></div>
+    <div class="size-swatch" style="width:54px;height:54px" title="~130 files"></div>
+    <div class="size-swatch" style="width:76px;height:76px" title="~300 files"></div>
+  </div>
+  <span class="lbl">&#9679; git &nbsp; &#9675; no git &nbsp;&mdash; opacity indicates version control status</span>
+</div>
+
+</body>
+</html>

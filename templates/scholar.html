@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ scholar.title }} — Dreambase Scholars</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+/* Scholar showcase styles — adapted from game showcases */
+.scholar-hero {
+  padding: 2rem 2rem 1.5rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  border-left: 5px solid {{ scholar.color }};
+}
+.scholar-hero h2 {
+  font-size: 1.8rem;
+  margin-bottom: 0.4rem;
+  color: var(--text);
+}
+.scholar-hook {
+  font-size: 1.1rem;
+  color: var(--accent);
+  font-style: italic;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+.scholar-meta {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+.scholar-meta .stat {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.scholar-meta .stat strong {
+  color: var(--orange);
+}
+.scholar-field {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  background: color-mix(in srgb, {{ scholar.color }} 15%, transparent);
+  border: 1px solid color-mix(in srgb, {{ scholar.color }} 30%, transparent);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: {{ scholar.color }};
+}
+
+/* Tab navigation */
+.showcase-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 2rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.tab-btn {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s, border-color 0.2s;
+}
+.tab-btn:hover {
+  color: var(--text);
+  background: none;
+}
+.tab-btn.active {
+  color: {{ scholar.color }};
+  border-bottom-color: {{ scholar.color }};
+  background: none;
+}
+
+/* Tab content panels */
+.tab-panel {
+  display: none;
+  padding: 2rem;
+  max-width: 900px;
+}
+.tab-panel.active {
+  display: block;
+}
+
+/* Overview tab */
+.narrative {
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--text);
+}
+.narrative p {
+  margin-bottom: 1rem;
+}
+
+/* Pedagogy box — adapted for scholars */
+.pedagogy-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-top: 1.5rem;
+}
+.pedagogy-box h4 {
+  color: {{ scholar.color }};
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+.pedagogy-box > p {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.depth-tiers {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+.depth-level {
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  flex: 1;
+  min-width: 200px;
+}
+.depth-level.introductory { background: #1a2a3a; color: #64b5f6; }
+.depth-level.intermediate { background: #2a2a1a; color: #ffd54f; }
+.depth-level.advanced { background: #3a1a2a; color: #ef9a9a; }
+.depth-level strong {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.2rem;
+}
+
+/* Timeline tab */
+.timeline-entry {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.timeline-date {
+  min-width: 90px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  padding-top: 0.2rem;
+}
+.timeline-body h4 {
+  font-size: 0.95rem;
+  margin-bottom: 0.3rem;
+}
+.timeline-body p {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.timeline-body .conv-link {
+  font-size: 0.75rem;
+  margin-top: 0.3rem;
+  display: inline-block;
+}
+
+/* Key Quotes tab */
+.quote-card {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background: var(--bg);
+  border-left: 3px solid {{ scholar.color }};
+  border-radius: 0 8px 8px 0;
+}
+.quote-card blockquote {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  font-style: italic;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+.quote-card .quote-source {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Source Conversations tab */
+.source-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.source-conv {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  transition: border-color 0.2s;
+}
+.source-conv:hover {
+  border-color: {{ scholar.color }};
+  text-decoration: none;
+}
+.source-conv .title {
+  flex: 1;
+  font-size: 0.9rem;
+}
+.source-conv .summary {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+  line-height: 1.4;
+}
+.source-conv .pages {
+  font-size: 0.85rem;
+  color: var(--orange);
+  font-weight: 600;
+  min-width: 50px;
+  text-align: right;
+}
+
+/* Connections tab */
+.connections-section {
+  margin-bottom: 2rem;
+}
+.connections-section h3 {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  color: var(--text);
+}
+.connection-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.connection-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  color: var(--text);
+  font-size: 0.85rem;
+  transition: border-color 0.2s;
+}
+.connection-card:hover {
+  text-decoration: none;
+  border-color: var(--accent);
+}
+.connection-card .overlap {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Tags */
+.scholar-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 1rem;
+}
+
+/* Empty state */
+.placeholder-note {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.9rem;
+  padding: 2rem;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+<header>
+  <h1><a href="/">Dreambase</a></h1>
+  <nav>
+    <a href="/">Browse</a>
+    <a href="/viz">Viz</a>
+    <a href="/ideas">Ideas</a>
+    <a href="/showcases">Showcases</a>
+    <a href="/collections">Collections</a>
+    <a href="/scholars" class="active">Scholars</a>
+    <a href="/projects">Projects</a>
+    <a href="/values">Values</a>
+  </nav>
+</header>
+
+<!-- Hero -->
+<div class="scholar-hero">
+  <h2>{{ scholar.title }}</h2>
+  <div class="scholar-hook">{{ scholar.hook }}</div>
+  <div class="scholar-meta">
+    <span class="stat"><strong>{{ conversations|length }}</strong> conversations</span>
+    <span class="stat"><strong>{{ total_pages }}</strong> pages of engagement</span>
+    <span class="scholar-field">{{ scholar.field }}</span>
+    <span class="stat" style="color: var(--text-muted)">{{ scholar.era }}</span>
+  </div>
+  {% if tags %}
+  <div class="scholar-tags">
+    {% for t in tags %}
+    <a href="/?tag={{ t }}" class="pill">{{ t }}</a>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+<!-- Tabs -->
+<div class="showcase-tabs">
+  <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="showTab('journey')">Intellectual Journey</button>
+  <button class="tab-btn" onclick="showTab('quotes')">Key Quotes</button>
+  <button class="tab-btn" onclick="showTab('connections')">Connections</button>
+  {% if images %}<button class="tab-btn" onclick="showTab('gallery')">Gallery</button>{% endif %}
+  <button class="tab-btn" onclick="showTab('sources')">Source Conversations</button>
+</div>
+
+<!-- TAB: Overview -->
+<div class="tab-panel active" id="tab-overview">
+  {% if narrative %}
+  <div class="narrative">
+    {{ narrative|safe }}
+  </div>
+  {% else %}
+  <p class="placeholder-note">
+    Narrative portrait pending. Generate by running the ChatGPT batch reading workflow
+    on this scholar's source conversations, then import via sidecar JSON.
+  </p>
+  {% endif %}
+
+  {% if scholar.pedagogy %}
+  <div class="pedagogy-box">
+    <h4>What Studying {{ scholar.title }} Teaches</h4>
+    <p>{{ scholar.pedagogy }}</p>
+    {% if scholar.depth_introductory or scholar.depth_intermediate or scholar.depth_advanced %}
+    <div class="depth-tiers">
+      {% if scholar.depth_introductory %}
+      <div class="depth-level introductory"><strong>Introductory</strong>{{ scholar.depth_introductory }}</div>
+      {% endif %}
+      {% if scholar.depth_intermediate %}
+      <div class="depth-level intermediate"><strong>Intermediate</strong>{{ scholar.depth_intermediate }}</div>
+      {% endif %}
+      {% if scholar.depth_advanced %}
+      <div class="depth-level advanced"><strong>Advanced</strong>{{ scholar.depth_advanced }}</div>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<!-- TAB: Intellectual Journey -->
+<div class="tab-panel" id="tab-journey">
+  {% if timeline_entries %}
+  {% for entry in timeline_entries %}
+  <div class="timeline-entry">
+    <div class="timeline-date">{{ entry.date }}</div>
+    <div class="timeline-body">
+      <h4>{{ entry.title }}</h4>
+      <p>{{ entry.description }}</p>
+      {% if entry.conversation_id %}
+      <a href="/conversation/{{ entry.conversation_id }}" class="conv-link">View conversation</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <p class="placeholder-note">
+    Intellectual journey timeline pending. Will be populated after ChatGPT batch reading
+    of the {{ conversations|length }} conversations about {{ scholar.title }}.
+  </p>
+  {% endif %}
+</div>
+
+<!-- TAB: Key Quotes -->
+<div class="tab-panel" id="tab-quotes">
+  {% if quotes %}
+  {% for q in quotes %}
+  <div class="quote-card">
+    <blockquote>"{{ q.text }}"</blockquote>
+    <div class="quote-source">
+      — {{ q.role }}, {{ q.conversation_title }}
+      {% if q.conversation_id %}
+      <a href="/conversation/{{ q.conversation_id }}">view</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <p class="placeholder-note">
+    Key quotes will be extracted during the ChatGPT batch reading workflow.
+    The best moments from {{ conversations|length }} conversations about {{ scholar.title }}, curated.
+  </p>
+  {% endif %}
+</div>
+
+<!-- TAB: Connections -->
+<div class="tab-panel" id="tab-connections">
+  {% if related %}
+  <div class="connections-section">
+    <h3>Related Scholars</h3>
+    <div class="connection-grid">
+      {% for r in related %}
+      <a href="/scholar/{{ r.slug }}" class="connection-card" style="border-left-color: {{ r.color }}">
+        <span>{{ r.title }}</span>
+        <span class="overlap">{{ r.overlap }} shared</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if related_collections %}
+  <div class="connections-section">
+    <h3>Related Collections</h3>
+    <div class="connection-grid">
+      {% for c in related_collections %}
+      <a href="/collection/{{ c.slug }}" class="connection-card" style="border-left-color: {{ c.color }}">
+        <span>{{ c.title }}</span>
+        <span class="overlap">{{ c.overlap }} shared</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if not related and not related_collections %}
+  <p class="placeholder-note">
+    No cross-references found yet. Connections appear when conversations are shared
+    between this scholar and other scholars or collections.
+  </p>
+  {% endif %}
+</div>
+
+<!-- TAB: Gallery -->
+{% if images %}
+<div class="tab-panel" id="tab-gallery">
+  <div class="gallery-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+    {% for img in images %}
+    <div class="gallery-item" style="background: var(--surface); border-radius: 8px; overflow: hidden;">
+      <img src="{{ img.url }}" alt="{{ img.caption }}" loading="lazy"
+           style="width:100%; height:auto; display:block;"
+           onerror="this.parentElement.innerHTML='<div style=padding:2rem;text-align:center;color:var(--text-muted)>Image unavailable</div>'">
+      <div style="padding: 0.75rem; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">{{ img.caption }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- TAB: Source Conversations -->
+<div class="tab-panel" id="tab-sources">
+  <div class="source-list">
+    {% for c in conversations %}
+    <a href="/conversation/{{ c.id }}" class="source-conv">
+      <span class="source-badge {{ c.source_name }}">{{ c.source_name }}</span>
+      <div style="flex:1">
+        <div class="title">{{ c.title }}</div>
+        {% if c.summary %}
+        <div class="summary">{{ c.summary[:150] }}{% if c.summary|length > 150 %}...{% endif %}</div>
+        {% endif %}
+      </div>
+      <span class="pages">{{ "%.0f"|format(c.estimated_pages or 0) }}p</span>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>

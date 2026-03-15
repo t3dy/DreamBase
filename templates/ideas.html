@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ideas — Dreambase</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+.ideas-controls {
+  padding: 1rem 2rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.filter-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; align-items: center; }
+.filter-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; min-width: 60px; }
+.view-toggle { display: flex; gap: 0; margin-left: auto; }
+.view-btn {
+  padding: 0.3rem 0.7rem; font-size: 0.8rem;
+  background: var(--bg); border: 1px solid var(--border); color: var(--text-muted);
+  cursor: pointer;
+}
+.view-btn:first-child { border-radius: 6px 0 0 6px; }
+.view-btn:last-child { border-radius: 0 6px 6px 0; }
+.view-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+/* List view */
+.ideas-list { padding: 0 2rem 2rem; max-width: 900px; }
+.ideas-list h3.section-header {
+  margin: 1.5rem 0 0.5rem; padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.idea-link {
+  display: flex; gap: 0.5rem; padding: 0.35rem 0;
+  border-bottom: 1px solid #1a1a1a;
+  align-items: baseline; color: var(--text); font-size: 0.88rem;
+}
+.idea-link:hover { color: var(--accent); text-decoration: none; }
+.idea-link .idea-name { flex: 1; }
+.idea-link .idea-maturity {
+  font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 6px;
+  background: #2a2a3e; color: var(--text-muted);
+}
+.idea-link .idea-maturity.built { background: #1a3a1a; color: var(--green); }
+.idea-link .idea-maturity.prototype { background: #2a3a1a; color: var(--green); }
+.idea-link .idea-maturity.design { background: #1a2a3a; color: var(--cyan); }
+.idea-link .idea-pages { font-size: 0.75rem; color: var(--orange); min-width: 3rem; text-align: right; }
+
+/* Stats bar */
+.ideas-stats {
+  padding: 0.5rem 2rem; display: flex; gap: 2rem; flex-wrap: wrap;
+  font-size: 0.8rem; color: var(--text-muted);
+}
+.ideas-stats .stat-num { color: var(--text); font-weight: 600; }
+</style>
+</head>
+<body>
+<header>
+  <h1><a href="/">Dreambase</a></h1>
+  <nav>
+    <a href="/">Browse</a>
+    <a href="/viz">Viz</a>
+    <a href="/ideas" class="active">Ideas</a>
+    <a href="/showcases">Showcases</a>
+    <a href="/collections">Collections</a>
+    <a href="/scholars">Scholars</a>
+    <a href="/projects">Projects</a>
+    <a href="/values">Values</a>
+  </nav>
+</header>
+
+<div class="ideas-controls">
+  <div class="filter-row">
+    <span class="filter-label">Category</span>
+    <a href="/ideas?view={{ view }}&sort={{ sort }}" class="pill {{ 'active' if not category }}">All <span>{{ ideas|length }}</span></a>
+    {% for cat in categories %}
+    <a href="/ideas?category={{ cat.category }}&view={{ view }}&sort={{ sort }}" class="pill {{ 'active' if category == cat.category }}">{{ cat.category }} <span>{{ cat_counts.get(cat.category, 0) }}</span></a>
+    {% endfor %}
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Maturity</span>
+    <a href="/ideas?category={{ category }}&view={{ view }}&sort={{ sort }}" class="pill {{ 'active' if not maturity }}">All</a>
+    {% for mat in maturities %}
+    <a href="/ideas?category={{ category }}&maturity={{ mat.maturity }}&view={{ view }}&sort={{ sort }}" class="pill {{ 'active' if maturity == mat.maturity }}">{{ mat.maturity }} <span>{{ mat_counts.get(mat.maturity, 0) }}</span></a>
+    {% endfor %}
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Sort</span>
+    <a href="/ideas?category={{ category }}&maturity={{ maturity }}&view={{ view }}&sort=name" class="pill {{ 'active' if sort == 'name' }}">A-Z</a>
+    <a href="/ideas?category={{ category }}&maturity={{ maturity }}&view={{ view }}&sort=pages" class="pill {{ 'active' if sort == 'pages' }}">Biggest</a>
+    <a href="/ideas?category={{ category }}&maturity={{ maturity }}&view={{ view }}&sort=maturity" class="pill {{ 'active' if sort == 'maturity' }}">Most mature</a>
+    <a href="/ideas?category={{ category }}&maturity={{ maturity }}&view={{ view }}&sort=date" class="pill {{ 'active' if sort == 'date' }}">Newest</a>
+    <div class="view-toggle">
+      <a href="/ideas?category={{ category }}&maturity={{ maturity }}&view=grid&sort={{ sort }}" class="view-btn {{ 'active' if view == 'grid' }}">Grid</a>
+      <a href="/ideas?category={{ category }}&maturity={{ maturity }}&view=list&sort={{ sort }}" class="view-btn {{ 'active' if view == 'list' }}">List</a>
+    </div>
+  </div>
+</div>
+
+<div class="ideas-stats">
+  <span><span class="stat-num">{{ ideas|length }}</span> ideas shown</span>
+  {% if category %}<span>category: <span class="stat-num">{{ category }}</span></span>{% endif %}
+  {% if maturity %}<span>maturity: <span class="stat-num">{{ maturity }}</span></span>{% endif %}
+</div>
+
+{% if view == 'list' %}
+<!-- Compact text-link index -->
+<div class="ideas-list">
+  {% set ns = namespace(current_cat='') %}
+  {% for idea in ideas %}
+    {% if idea.category != ns.current_cat %}
+      {% set ns.current_cat = idea.category %}
+      <h3 class="section-header">{{ idea.category }} ({{ cat_counts.get(idea.category, 0) }})</h3>
+    {% endif %}
+    <a href="/conversation/{{ idea.conversation_id }}" class="idea-link">
+      <span class="idea-name">{{ idea.name or idea.conv_title }}</span>
+      <span class="idea-maturity {{ idea.maturity }}">{{ idea.maturity }}</span>
+      <span class="idea-pages">{{ "%.0f"|format(idea.estimated_pages or 0) }}p</span>
+    </a>
+  {% endfor %}
+</div>
+
+{% else %}
+<!-- Card grid view -->
+<div class="card-grid">
+  {% for idea in ideas %}
+  <a href="/conversation/{{ idea.conversation_id }}" class="card idea-card">
+    <div class="card-header">
+      <span class="pill mini {{ idea.category }}">{{ idea.category }}</span>
+      <span class="pill mini maturity-{{ idea.maturity }}">{{ idea.maturity }}</span>
+    </div>
+    <h3>{{ idea.name or idea.conv_title }}</h3>
+    {% if idea.description %}
+    <p class="summary">{{ idea.description[:200] }}</p>
+    {% endif %}
+    <div class="card-footer">
+      <span class="source-badge {{ idea.source_name }}">{{ idea.source_name }}</span>
+      <span class="pages">{{ "%.0f"|format(idea.estimated_pages or 0) }}p</span>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+</body>
+</html>

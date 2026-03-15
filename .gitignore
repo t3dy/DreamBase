@@ -1,0 +1,40 @@
+# Database (1.3GB — not for git)
+megabase.db
+megabase_backup_session3.db
+megabase_indexed.db
+megabase_pre_index.db
+*.db-journal
+*.db-wal
+
+# Chunk exports (large generated files)
+chunks/
+
+# Generated data files
+narrative_data.json
+timelines_quotes.json
+personal_census.json
+personal_ranked.json
+untagged_manifest.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+ingest_errors.log
+*.log
+
+# Virtual env
+venv/
+.venv/

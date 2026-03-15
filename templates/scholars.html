@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scholars — Dreambase</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+.scholars-intro {
+  padding: 2rem 2rem 1.5rem;
+  max-width: 800px;
+}
+.scholars-intro h2 {
+  font-size: 1.8rem;
+  margin-bottom: 0.4rem;
+}
+.scholars-intro .subtitle {
+  color: var(--text-muted);
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+.scholars-intro p {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+.scholars-stats {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.scholars-stats strong {
+  color: var(--orange);
+}
+
+.scholar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 1.25rem;
+  padding: 1.5rem 2rem 2rem;
+}
+.scholar-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem 1.75rem;
+  transition: border-color 0.2s, transform 0.1s;
+  display: flex;
+  flex-direction: column;
+  border-left: 4px solid var(--accent);
+  min-height: 220px;
+}
+.scholar-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+.scholar-card h3 {
+  font-size: 1.15rem;
+  margin-bottom: 0.4rem;
+  color: var(--text);
+}
+.scholar-card .field {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+  line-height: 1.3;
+}
+.scholar-card .hook {
+  font-size: 0.9rem;
+  color: var(--accent);
+  font-style: italic;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  flex: 1;
+}
+.scholar-card .pedagogy-preview {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin-bottom: 0.75rem;
+  opacity: 0.8;
+}
+.scholar-card .meta {
+  display: flex;
+  gap: 1.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+.scholar-card .meta strong {
+  color: var(--orange);
+}
+.scholar-card .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+}
+.scholar-card .tags .pill {
+  font-size: 0.72rem;
+  padding: 0.2rem 0.55rem;
+}
+
+.era-section {
+  padding: 0.5rem 2rem;
+}
+.era-section h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--border);
+}
+</style>
+</head>
+<body>
+<header>
+  <h1><a href="/">Dreambase</a></h1>
+  <nav>
+    <a href="/">Browse</a>
+    <a href="/viz">Viz</a>
+    <a href="/ideas">Ideas</a>
+    <a href="/showcases">Showcases</a>
+    <a href="/collections">Collections</a>
+    <a href="/scholars" class="active">Scholars</a>
+    <a href="/projects">Projects</a>
+    <a href="/values">Values</a>
+  </nav>
+</header>
+
+<div class="scholars-intro">
+  <h2>Scholars</h2>
+  <div class="subtitle">the thinkers behind the thinking</div>
+  <p>
+    30 scholars, philosophers, and occultists who shaped Ted's intellectual journey
+    — from Renaissance syncretists to contemporary historians of esotericism.
+    Each page is a 5-tab deep dive into the conversations, with pedagogy adapted
+    to what studying each thinker actually teaches.
+  </p>
+  <div class="scholars-stats">
+    <span><strong>{{ scholars|length }}</strong> scholars</span>
+    <span><strong>{{ scholars|map(attribute='conversation_ids')|map('length')|sum }}</strong> linked conversations</span>
+  </div>
+</div>
+
+<div class="scholar-grid">
+  {% for s in scholars %}
+  <a href="/scholar/{{ s.slug }}" class="scholar-card" style="border-left-color: {{ s.color }}">
+    <h3>{{ s.title }}</h3>
+    <div class="field">{{ s.field }} · {{ s.era }}</div>
+    <div class="hook">{{ s.hook }}</div>
+    {% if s.pedagogy %}
+    <div class="pedagogy-preview">{{ s.pedagogy[:120] }}{% if s.pedagogy|length > 120 %}...{% endif %}</div>
+    {% endif %}
+    <div class="meta">
+      <span><strong>{{ s.conversation_ids|length }}</strong> conversations</span>
+    </div>
+    {% if s.tags %}
+    <div class="tags">
+      {% for t in s.tags[:4] %}
+      <span class="pill">{{ t }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </a>
+  {% endfor %}
+</div>
+
+</body>
+</html>

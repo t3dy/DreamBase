@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Action Map — Dreambase Next Steps</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+.action-hero {
+  padding: 2rem; max-width: 900px;
+}
+.action-hero h2 { font-size: 1.8rem; margin-bottom: 0.3rem; }
+.action-hero .subtitle { color: var(--text-muted); font-style: italic; margin-bottom: 1rem; }
+.action-hero p { font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; }
+
+/* Swimlanes */
+.swimlane {
+  padding: 1rem 2rem 1.5rem; border-bottom: 1px solid var(--border);
+}
+.swimlane-header {
+  display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; cursor: pointer;
+}
+.swimlane-header h3 {
+  font-size: 1.1rem; margin: 0;
+}
+.swimlane-header .lane-badge {
+  padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.72rem;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.lane-now { background: #1b5e20; color: #a5d6a7; }
+.lane-soon { background: #e65100; color: #ffcc80; }
+.lane-later { background: #4a148c; color: #ce93d8; }
+.lane-vision { background: #0d47a1; color: #90caf9; }
+
+/* Action cards */
+.action-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+.action-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 1.25rem 1.5rem; cursor: pointer;
+  transition: border-color 0.2s, transform 0.1s;
+  border-left: 4px solid var(--border);
+}
+.action-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.action-card.expanded { border-color: var(--accent); }
+.action-card h4 { font-size: 0.95rem; margin-bottom: 0.3rem; }
+.action-card .effort {
+  font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;
+}
+.action-card .summary {
+  font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;
+}
+
+/* Detail pane */
+.detail-pane {
+  display: none; margin-top: 1rem; padding: 1.25rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; font-size: 0.88rem; line-height: 1.7;
+}
+.detail-pane.visible { display: block; }
+.detail-pane h5 { color: var(--accent); margin: 1rem 0 0.5rem; font-size: 0.95rem; }
+.detail-pane p { margin-bottom: 0.8rem; color: var(--text); }
+.detail-pane code {
+  background: var(--card); padding: 0.15rem 0.4rem; border-radius: 3px;
+  font-size: 0.82rem;
+}
+.detail-pane .cost-table {
+  width: 100%; border-collapse: collapse; margin: 0.5rem 0;
+}
+.detail-pane .cost-table th, .detail-pane .cost-table td {
+  padding: 0.4rem 0.6rem; text-align: left; border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+}
+.detail-pane .cost-table th { color: var(--accent); font-size: 0.75rem; text-transform: uppercase; }
+.detail-pane ul { padding-left: 1.2rem; margin: 0.5rem 0; }
+.detail-pane li { margin-bottom: 0.3rem; color: var(--text-muted); }
+
+/* Stats bar */
+.stats-bar {
+  display: flex; gap: 2rem; padding: 1rem 2rem;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  font-size: 0.85rem; color: var(--text-muted); flex-wrap: wrap;
+}
+.stats-bar strong { color: var(--orange); }
+</style>
+</head>
+<body>
+<header>
+  <h1><a href="/">Dreambase</a></h1>
+  <nav>
+    <a href="/">Browse</a> <a href="/viz">Viz</a> <a href="/ideas">Ideas</a>
+    <a href="/showcases">Showcases</a> <a href="/collections">Collections</a>
+    <a href="/scholars">Scholars</a> <a href="/projects">Projects</a> <a href="/values">Values</a>
+  </nav>
+</header>
+
+<div class="action-hero">
+  <h2>Action Map</h2>
+  <div class="subtitle">every next step, organized by urgency, with click-to-expand technical details</div>
+  <p>Four swimlanes from "do this now" to "long-term vision." Click any card to expand the technical explanation, cost analysis, or implementation plan.</p>
+</div>
+
+<div class="stats-bar">
+  <span><strong>4,308</strong> conversations in megabase</span>
+  <span><strong>367</strong> need better summaries</span>
+  <span><strong>12</strong> untagged giants (&gt;300p)</span>
+  <span><strong>7</strong> .md documents produced this session</span>
+  <span><strong>5</strong> showcase pages live</span>
+</div>
+
+<!-- SWIMLANE 1: DO NOW -->
+<div class="swimlane">
+  <div class="swimlane-header">
+    <span class="lane-badge lane-now">Do Now</span>
+    <h3>Quick Wins (< 30 minutes each)</h3>
+  </div>
+  <div class="action-grid">
+
+    <div class="action-card" style="border-left-color: #4caf50;" onclick="toggleDetail(this)">
+      <h4>Tag the 12 Untagged Giants</h4>
+      <div class="effort">5 min · no code · immediate impact</div>
+      <div class="summary">12 conversations over 300 pages have zero tags. The longest is 1,206 pages of medieval magic. Tagging them makes them discoverable.</div>
+      <div class="detail-pane">
+        <h5>What are the untagged giants?</h5>
+        <p>These are conversations where you spent 300+ pages of engagement but the keyword tagger didn't catch them. Most are scholarly deep reads that use specialized vocabulary the regex patterns don't match.</p>
+        <h5>The specific conversations</h5>
+        <ul>
+          <li><strong>ID 712</strong> (1,206p) — Medieval Magic Summary Request → tag: <code>alchemy</code>, <code>esoteric</code></li>
+          <li><strong>ID 734</strong> (805p) — Book Summary Request → needs investigation first</li>
+          <li><strong>ID 674</strong> (666p) — Hypnerotomachia Poliphili → tag: <code>esoteric</code></li>
+          <li><strong>ID 598</strong> (503p) — Sefer Yetzirah with Marla Segol → tag: <code>esoteric</code></li>
+          <li><strong>ID 520</strong> (363p) — Plato's Sophist and Philebus → tag: <code>philosophy</code> (new tag needed?)</li>
+          <li><strong>ID 694</strong> (335p) — Mondo 2000 Interview → unique, cultural history</li>
+          <li><strong>ID 18</strong> (339p) — Mind vs Computer Debate → tag: <code>educational</code>, <code>coding</code></li>
+          <li><strong>ID 573</strong> (232p) — Chomskyan Linguistics → no matching tag exists</li>
+        </ul>
+        <h5>How to do it</h5>
+        <p>Run SQL inserts directly: <code>INSERT INTO conversation_tags (conversation_id, tag_id, confidence, method) VALUES (712, (SELECT id FROM tags WHERE name='alchemy'), 0.9, 'manual')</code>. Or add IDs to existing SCHOLARS/COLLECTIONS dicts in app.py.</p>
+      </div>
+    </div>
+
+    <div class="action-card" style="border-left-color: #4caf50;" onclick="toggleDetail(this)">
+      <h4>Fix the 3 Sidecar JSON Bugs</h4>
+      <div class="effort">2 min · 4 lines of code · prevents 500 errors</div>
+      <div class="summary">The sidecar JSON loader in app.py has no try/except. A malformed JSON file crashes the entire scholar or showcase page.</div>
+      <div class="detail-pane">
+        <h5>What's the bug?</h5>
+        <p>In <code>app.py</code> lines 1072-1083 (showcase route) and 1244-1255 (scholar route), the code does <code>json.load(f)</code> without exception handling. If anyone saves a sidecar file with a trailing comma or unclosed bracket, the entire route returns HTTP 500.</p>
+        <h5>The fix</h5>
+        <p>Wrap the <code>json.load()</code> in both locations with <code>try/except json.JSONDecodeError</code> and fall back to an empty dict. Four lines of code, two locations.</p>
+        <h5>Why it matters</h5>
+        <p>As you start creating sidecar JSON files (narratives, timelines, quotes for the 30 scholars and 3 showcases), the probability of a malformed file approaches 1. This fix is the cheapest possible reliability improvement.</p>
+      </div>
+    </div>
+
+    <div class="action-card" style="border-left-color: #4caf50;" onclick="toggleDetail(this)">
+      <h4>Run Haiku Batch for 367 Summaries</h4>
+      <div class="effort">15 min setup · $0.41 · fixes half the bad summaries</div>
+      <div class="summary">367 tagged conversations have summaries under 200 characters. A Haiku API batch reading the first 12,000 chars of each costs $0.41 total.</div>
+      <div class="detail-pane">
+        <h5>The economics</h5>
+        <table class="cost-table">
+          <tr><th>Strategy</th><th>What's Read</th><th>Tokens</th><th>Haiku Cost</th></tr>
+          <tr><td>Skim (4K/convo)</td><td>Title + first messages</td><td>367K</td><td>$0.14</td></tr>
+          <tr><td>Deep Skim (12K/convo)</td><td>First ~4 pages</td><td>1.1M</td><td><strong>$0.41</strong></td></tr>
+          <tr><td>Full Read</td><td>All 80MB</td><td>20M</td><td>$7.52</td></tr>
+        </table>
+        <h5>How it works</h5>
+        <p>The <code>improve_summaries.py</code> script already exists. It reads first N chars from each conversation, sends them to Claude Haiku with a summary prompt, and updates the <code>summary</code> column. You'd need to add your API key (or use the Anthropic Batch API for 50% discount).</p>
+        <h5>Alternative: ChatGPT Plus (free)</h5>
+        <p>The existing <code>summarize.py batch-export</code> produces paste-ready .md files with 20 conversations each. 367 conversations / 20 per batch = 19 ChatGPT paste sessions. About 1 hour of manual work, $0 cost.</p>
+      </div>
+    </div>
+
+    <div class="action-card" style="border-left-color: #4caf50;" onclick="toggleDetail(this)">
+      <h4>Add ID 712 to Alchemy Scholarship</h4>
+      <div class="effort">30 seconds · 1 line change · adds 1,206 pages to a collection</div>
+      <div class="summary">The single longest ChatGPT conversation (1,206 pages of medieval magic) isn't in any collection. It belongs in Alchemy Scholarship.</div>
+      <div class="detail-pane">
+        <h5>Why this matters</h5>
+        <p>"Medieval Magic Summary Request" at 1,206 pages is the longest LLM conversation in the entire database. It's currently invisible — no tags, no collection, no scholar page references it. Adding it to the Alchemy Scholarship collection instantly makes that collection the richest in the database.</p>
+        <h5>The change</h5>
+        <p>In <code>app.py</code>, find the <code>alchemy-scholarship</code> collection dict and add <code>712</code> to <code>conversation_ids</code>. One integer, one line.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SWIMLANE 2: THIS WEEK -->
+<div class="swimlane">
+  <div class="swimlane-header">
+    <span class="lane-badge lane-soon">This Week</span>
+    <h3>Major Features (1-3 hours each)</h3>
+  </div>
+  <div class="action-grid">
+
+    <div class="action-card" style="border-left-color: #ff9800;" onclick="toggleDetail(this)">
+      <h4>Build the Reader Pane</h4>
+      <div class="effort">2 hours · new route + AJAX panel · high user impact</div>
+      <div class="summary">Click "1,438 pages" on any scholar page and read all linked conversations inline. The most-requested feature.</div>
+      <div class="detail-pane">
+        <h5>Design decision: three options</h5>
+        <p><strong>Option A: Side panel (Gmail-style).</strong> A 400px right panel slides in when you click the page stat. The main page stays visible. Good for reference browsing. Con: narrow reading width on small screens.</p>
+        <p><strong>Option B: Full-page takeover.</strong> A new route <code>/read/scholar/pico-della-mirandola</code> that shows all messages in a scrollable book-like view. Good for deep reading. Con: loses the scholar page context.</p>
+        <p><strong>Option C: Expandable accordion.</strong> Below the stats bar, an expandable section shows a conversation picker, then messages. Stays on the same page. Good for quick reference. Con: pushes other content down.</p>
+        <h5>Recommended: Option A with lazy loading</h5>
+        <p>Build a <code>/api/read/&lt;conv_id&gt;</code> JSON endpoint that returns paginated messages. The scholar page gets a slide-in panel that loads conversations one at a time. User picks which conversation to read from a list sorted by page count. Messages load in batches of 50 (already the pattern in <code>conversation.html</code>).</p>
+        <h5>Technical details</h5>
+        <p>The main risk is performance. Pico has 1,438 pages across 6 conversations. Loading all messages at once would be ~100,000 DOM nodes. Solution: load one conversation at a time, paginate messages, lazy-load on scroll. The existing <code>messages</code> table has an index on <code>conversation_id</code> so queries will be fast.</p>
+      </div>
+    </div>
+
+    <div class="action-card" style="border-left-color: #ff9800;" onclick="toggleDetail(this)">
+      <h4>Ingest AlchemyDB Lexicon</h4>
+      <div class="effort">1 hour · Python script · unblocks alchemy hyperlinking</div>
+      <div class="summary">Import 187 alchemical terms from AlchemyDB into megabase. Fix the category data quality issues during import. Powers the future auto-hyperlink feature.</div>
+      <div class="detail-pane">
+        <h5>What's in AlchemyDB?</h5>
+        <p>Located at <code>C:\OldDevProjects\AlchemyDB\alchemydb.db</code>. Only the <code>lexicon</code> table is populated (187 entries). Each has: <code>term</code>, <code>definition</code>, <code>category</code>, <code>theoretical_lineage</code>. But 135 entries are miscategorized as "Practitioner" when they're actually substances, processes, or texts. The <code>theoretical_lineage</code> column is a duplicate of <code>definition</code> (ingestion bug).</p>
+        <h5>The import plan</h5>
+        <ul>
+          <li>Create <code>alchemy_lexicon</code> table in megabase.db</li>
+          <li>Re-categorize during import: Practitioner, Substance, Process, Text, Apparatus, Concept</li>
+          <li>Fix the lineage/definition duplication</li>
+          <li>Create <code>alchemy_mentions</code> table linking terms to conversations (scan summaries for term matches)</li>
+        </ul>
+        <h5>Why this unblocks everything</h5>
+        <p>Once the lexicon is in megabase, you can: (1) build an <code>/alchemy</code> browse page, (2) build <code>/alchemy/&lt;term&gt;</code> detail pages, (3) auto-hyperlink alchemy terms on scholar and showcase pages. The hyperlink feature is the single biggest "rabbit hole" UX improvement possible.</p>
+      </div>
+    </div>
+
+    <div class="action-card" style="border-left-color: #ff9800;" onclick="toggleDetail(this)">
+      <h4>Create 3 Missing Collections</h4>
+      <div class="effort">45 min · data dict additions · fills narrative gaps</div>
+      <div class="summary">Add collections for: Kabbalah & Jewish Mysticism, Renaissance Literature, and a Game Design Workshop mega-collection (628 game_idea conversations).</div>
+      <div class="detail-pane">
+        <h5>Why these three?</h5>
+        <p>The Narrative Coverage Audit found that game_idea (628 convos) has only 3 showcases covering ~12 specific conversations. Kabbalah has a 503-page Sefer Yetzirah conversation that's invisible. Renaissance literature (Hypnerotomachia, Heroic Frenzies, Shakespeare) has 1,800+ pages with no home.</p>
+        <h5>Kabbalah & Jewish Mysticism</h5>
+        <p>IDs: 598 (Sefer Yetzirah, 503p), 667 (Hanegraaff/esotericism, Scholem references), 138 (related), plus Kabbalistic threads from Pico (666) and Dee (731). Connects to Scholem scholar page.</p>
+        <h5>Renaissance Literature</h5>
+        <p>IDs: 674 (Hypnerotomachia, 666p), 662 (Heroic Frenzies, 436p), 2981 (Shakespeare, 757p), 694 (Mondo 2000, 335p). This is high-page-count, high-quality content currently sitting in the dark.</p>
+        <h5>Game Design Workshop</h5>
+        <p>A mega-collection drawing from the 628 game_idea tagged conversations. Not all 628 — curate the top 30-40 by page count. This becomes the entry point for the game design rabbit hole, with the 3 existing showcases as deep dives.</p>
+      </div>
+    </div>
+
+    <div class="action-card" style="border-left-color: #ff9800;" onclick="toggleDetail(this)">
+      <h4>Build the Short Prompts Action Map</h4>
+      <div class="effort">2 hours · new route + D3 viz · behavioral self-portrait</div>
+      <div class="summary">Extract all user messages under 100 words, classify by behavior type (reading, building, learning, creating, directing, debugging, exploring), visualize as a Tufte-style behavioral map.</div>
+      <div class="detail-pane">
+        <h5>What we already know</h5>
+        <p>77% of your messages are under 100 characters. 99.7% are under 500 characters. The vast majority are short directives: "continue", "proceed", "now do X". The question is: what do the substantive short prompts tell us about your behavioral patterns?</p>
+        <h5>Classification approach (deterministic first)</h5>
+        <ul>
+          <li><strong>Reading:</strong> "summarize", "what does X say", "give me a table of", "continue with the book"</li>
+          <li><strong>Building:</strong> "build the game", "make a script", "create a database", "fix the bug"</li>
+          <li><strong>Learning:</strong> "explain", "how does X work", "what is the difference", "teach me"</li>
+          <li><strong>Creating:</strong> "write an essay", "design a", "make a mockup", "give me ideas"</li>
+          <li><strong>Directing:</strong> "now do", "proceed", "continue", "next"</li>
+          <li><strong>Debugging:</strong> "it's not working", "I get an error", "fix", "why does"</li>
+          <li><strong>Exploring:</strong> "what if", "could we", "is it possible", "show me"</li>
+        </ul>
+        <h5>Visualization options</h5>
+        <p><strong>Sankey diagram:</strong> source → behavior type → topic tag. Shows flow of activity.</p>
+        <p><strong>Treemap:</strong> behavior types as nested rectangles, sized by frequency.</p>
+        <p><strong>Stacked area chart:</strong> behavior types over time, showing how your usage patterns evolved.</p>
+        <p>Recommend: stacked area chart (temporal evolution) + treemap (current snapshot). Both use D3.js, same pattern as the viz page.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SWIMLANE 3: NEXT SESSION -->
+<div class="swimlane">
+  <div class="swimlane-header">
+    <span class="lane-badge lane-later">Next Session</span>
+    <h3>Upgrade & Polish (2-4 hours each)</h3>
+  </div>
+  <div class="action-grid">
+
+    <div class="action-card" style="border-left-color: #9c27b0;" onclick="toggleDetail(this)">
+      <h4>Alchemy Auto-Hyperlinking</h4>
+      <div class="effort">3 hours · JS + templates · site-wide rabbit holes</div>
+      <div class="summary">After AlchemyDB is ingested, make every alchemy term on every page clickable. A tooltip shows the definition; clicking goes to the full lexicon entry.</div>
+      <div class="detail-pane">
+        <h5>The technical challenge</h5>
+        <p>Auto-hyperlinking means scanning rendered HTML text for 187 terms and wrapping matches in <code>&lt;a&gt;</code> tags. This must happen client-side (after template rendering) or server-side (in Jinja2 filters).</p>
+        <h5>Option A: Client-side JavaScript</h5>
+        <p>Load the term list as a JSON array. On page load, walk the DOM text nodes and replace matches. Pros: works on every page with one shared script. Cons: flash of unstyled content, performance on long pages.</p>
+        <h5>Option B: Jinja2 custom filter</h5>
+        <p>Create a <code>|alchemize</code> filter that scans text and wraps terms. Apply it to summary fields, pedagogy boxes, and narrative text. Pros: no FOUC, server-side rendering. Cons: must be applied explicitly in each template.</p>
+        <h5>Recommendation</h5>
+        <p>Option B (Jinja2 filter) for structured content (summaries, pedagogy). Option A (JavaScript) as a fallback for dynamic content. The Jinja2 filter is more reliable and doesn't cause layout shifts.</p>
+        <h5>Blast radius warning</h5>
+        <p>This touches ALL templates. Per the Failure Audit, it should run LAST — after all other template changes are stable. Test on one page (e.g., Paracelsus scholar page) before rolling out.</p>
+      </div>
+    </div>
+
+    <div class="action-card" style="border-left-color: #9c27b0;" onclick="toggleDetail(this)">
+      <h4>Showcase Quality Upgrade (Swarm V3)</h4>
+      <div class="effort">4 hours · templates + sidecars · Wonderland-tier for all pages</div>
+      <div class="summary">Bring all 3 game showcases, 9 collections, and 30 scholar pages up to the Algorithms in Wonderland standard: concept matrices, rabbit holes tabs, illustrated essays.</div>
+      <div class="detail-pane">
+        <h5>The component library approach</h5>
+        <p>Rather than editing 42 pages individually, build a Jinja2 macro library (<code>templates/macros/components.html</code>) with reusable components:</p>
+        {% raw %}
+        <ul>
+          <li><code>{%- macro allusion_card(literary, technical, connector) -%}</code></li>
+          <li><code>{%- macro concept_matrix(rows) -%}</code></li>
+          <li><code>{%- macro rabbit_holes(links) -%}</code></li>
+          <li><code>{%- macro depth_tiers(intro, mid, adv) -%}</code></li>
+        </ul>
+        <p>Then update each template to <code>{% import 'macros/components.html' as c %}</code> and call the macros with page-specific data from sidecar JSON files.</p>
+        {% endraw %}
+        <h5>Content generation strategy</h5>
+        <p>The structure (macros) can be built now. The content (essays, matrices, quotes) needs either manual curation or a ChatGPT batch workflow. For 42 pages, batch exporting the linked conversations and pasting into ChatGPT to generate narratives/quotes/timelines is the cheapest approach (~2-3 hours of paste work).</p>
+      </div>
+    </div>
+
+    <div class="action-card" style="border-left-color: #9c27b0;" onclick="toggleDetail(this)">
+      <h4>Unified Card Styling</h4>
+      <div class="effort">1 hour · CSS · visual consistency across all pages</div>
+      <div class="summary">Create a shared .dreambase-card CSS class that all card views use. Currently scholar cards, collection cards, idea cards, and project cards each have slightly different styling.</div>
+      <div class="detail-pane">
+        <h5>The current inconsistencies</h5>
+        <p>Scholar cards: 380px min, 1.25rem gap, 1.5rem padding, 220px min-height, left border accent. Collection cards: compact, different padding. Idea cards: grid/list toggle, different font sizes. Project cards: domain-color clusters, different layout.</p>
+        <h5>The unification plan</h5>
+        <p>Create a base <code>.dreambase-card</code> class in <code>style.css</code> with: consistent padding (1.25rem), consistent border radius (10px), consistent hover effect, consistent left-border accent pattern. Then add modifier classes (<code>.dreambase-card--scholar</code>, <code>.dreambase-card--compact</code>) for size variations.</p>
+        <p>The "index card" metaphor: each card should have roughly the same information density — enough to give an overview without needing to click, but not so much that you need to scroll within the card.</p>
+      </div>
+    </div>
+
+    <div class="action-card" style="border-left-color: #9c27b0;" onclick="toggleDetail(this)">
+      <h4>Personal Archaeology Showcase</h4>
+      <div class="effort">3 hours · new template + data mining · biggest coverage gap</div>
+      <div class="summary">SMS messages are 73% of the database by volume and 0% of the curation. Build a showcase for the personal archive: SMS, Facebook, Twitter as a time capsule.</div>
+      <div class="detail-pane">
+        <h5>Why this is the biggest gap</h5>
+        <p>102,020 pages of SMS. 2,318 pages of Facebook. 6,247 pages of Twitter. Combined, the personal sources are 110,585 pages — more than all LLM conversations combined. Dreambase currently presents Ted as a scholar and builder, but the personal dimension is invisible.</p>
+        <h5>Sensitivity considerations</h5>
+        <p>Personal messages contain names, relationships, emotions. A public-facing showcase needs careful curation: anonymize contacts, aggregate rather than quote, focus on patterns rather than content.</p>
+        <h5>Showcase structure</h5>
+        <ul>
+          <li><strong>Overview:</strong> The personal archive by the numbers (816 SMS threads, 767 Facebook threads)</li>
+          <li><strong>Contact Network:</strong> Top contacts by message volume (anonymized)</li>
+          <li><strong>Emotional Geology:</strong> Sentiment layers over time — which periods were positive/negative?</li>
+          <li><strong>Cross-Source Timeline:</strong> What was happening on SMS while you were deep in ChatGPT?</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SWIMLANE 4: VISION -->
+<div class="swimlane">
+  <div class="swimlane-header">
+    <span class="lane-badge lane-vision">Long-Term Vision</span>
+    <h3>Architecture & Scale</h3>
+  </div>
+  <div class="action-grid">
+
+    <div class="action-card" style="border-left-color: #2196f3;" onclick="toggleDetail(this)">
+      <h4>Move Curations to Database</h4>
+      <div class="effort">half day · schema change · solves the ID fragility problem</div>
+      <div class="summary">The Failure Audit's #1 risk: if the database is rebuilt, all hardcoded conversation IDs break. Move SCHOLARS, COLLECTIONS, SHOWCASES into a curations table.</div>
+      <div class="detail-pane">
+        <h5>The problem</h5>
+        <p>200+ conversation IDs are hardcoded in Python dicts in app.py. If anyone re-runs the ingestors, SQLite auto-increments from scratch, and every curated page shows empty. This is the single most fragile part of the architecture.</p>
+        <h5>The solution</h5>
+        <p>Create a <code>curations</code> table: <code>id, type (scholar/collection/showcase), slug, title, data_json</code>. Store the conversation_ids, tags, pedagogy, etc. in a JSON blob. The Python dicts become seed data that's loaded into the DB once. Routes query the curations table instead of reading from memory.</p>
+        <h5>Migration path</h5>
+        <p>Write a <code>migrate_curations.py</code> script that reads the current dicts from app.py and inserts them into the new table. Update routes to query the DB. Keep the dicts as fallback during transition.</p>
+        <h5>Why not now?</h5>
+        <p>This is a refactor that doesn't add features. It's important for long-term reliability but not urgent while the database isn't being rebuilt. Do it before any re-ingestion.</p>
+      </div>
+    </div>
+
+    <div class="action-card" style="border-left-color: #2196f3;" onclick="toggleDetail(this)">
+      <h4>GitHub Pages Static Export</h4>
+      <div class="effort">half day · freeze script · makes Dreambase publicly accessible</div>
+      <div class="summary">Export the Flask app as static HTML for GitHub Pages hosting. Every page becomes a .html file. Search becomes client-side.</div>
+      <div class="detail-pane">
+        <h5>What changes</h5>
+        <p>Flask-Freeze or a custom script renders every route to a .html file. FTS search becomes a client-side lunr.js index (pre-built from conversation titles + summaries). Database queries become pre-computed JSON files loaded by JavaScript.</p>
+        <h5>What stays the same</h5>
+        <p>All templates, CSS, card layouts, tab switching. The static site looks identical to the Flask app for read-only browsing. Only search and the conversation detail page (message pagination) need client-side alternatives.</p>
+        <h5>Trade-offs</h5>
+        <p>Pro: free hosting, shareable URL, no server needed. Con: search quality degrades (lunr.js vs FTS5), no message-level browsing (too many pages to pre-render), larger initial download (pre-computed JSON).</p>
+      </div>
+    </div>
+
+    <div class="action-card" style="border-left-color: #2196f3;" onclick="toggleDetail(this)">
+      <h4>Vector Embeddings + Semantic Search</h4>
+      <div class="effort">1 day · ChromaDB · "find conversations like this one"</div>
+      <div class="summary">Add vector embeddings to enable semantic search: "find conversations about transformation" returns alchemy, game design, and personal growth conversations.</div>
+      <div class="detail-pane">
+        <h5>How it complements FTS5</h5>
+        <p>FTS5 finds exact words. Vector search finds meaning. "Transformation" in FTS5 returns conversations containing that word. With embeddings, it also finds conversations about transmutation, metamorphosis, character development, and code refactoring — all "transformation" in different domains.</p>
+        <h5>Implementation</h5>
+        <p>Use ChromaDB (already used in the SMS project). Embed conversation summaries (4,243 texts × ~100 tokens each = 424K tokens). At OpenAI embedding prices ($0.02/1M tokens): about $0.01 total. Store embeddings in a ChromaDB collection alongside megabase.db.</p>
+        <h5>UI integration</h5>
+        <p>Add a "similar conversations" section to every conversation detail page. Add a "semantic search" toggle to the browse page search bar. When enabled, search queries are embedded and compared against the collection.</p>
+      </div>
+    </div>
+
+    <div class="action-card" style="border-left-color: #2196f3;" onclick="toggleDetail(this)">
+      <h4>The Prompt Museum</h4>
+      <div class="effort">multi-session · new showcase type · meta-cognitive showcase</div>
+      <div class="summary">A showcase OF the behavioral action map — how Ted talks to AI, patterns across 4,308 conversations, the evolution from Q&A to agentic swarms.</div>
+      <div class="detail-pane">
+        <h5>Concept</h5>
+        <p>The Prompt Museum is the ultimate meta-showcase: it presents Dreambase's own creation as an exhibit. How did Ted's prompting style evolve? What behavioral patterns emerge from 1.4M user messages? Where are the phase transitions between simple Q&A and multi-agent orchestration?</p>
+        <h5>Exhibits</h5>
+        <ul>
+          <li><strong>The Behavioral Treemap:</strong> All user messages classified by intent, sized by frequency</li>
+          <li><strong>The Evolution Timeline:</strong> Prompting sophistication over time</li>
+          <li><strong>The Length Distribution:</strong> Why 77% of messages are under 100 chars</li>
+          <li><strong>The Vocabulary Cloud:</strong> Most-used verbs (build, explain, continue, fix, show)</li>
+          <li><strong>The Session Signatures:</strong> Typical conversation shapes (quick Q&A vs. marathon deep-dive)</li>
+        </ul>
+        <p>This depends on Workstream D (Short Prompts + Action Map) being complete first.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function toggleDetail(card) {
+  const pane = card.querySelector('.detail-pane');
+  const wasVisible = pane.classList.contains('visible');
+  // Close all others
+  document.querySelectorAll('.detail-pane.visible').forEach(p => p.classList.remove('visible'));
+  document.querySelectorAll('.action-card.expanded').forEach(c => c.classList.remove('expanded'));
+  if (!wasVisible) {
+    pane.classList.add('visible');
+    card.classList.add('expanded');
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Collections — Dreambase</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+.collections-intro {
+  padding: 2rem 2rem 1rem;
+  max-width: 700px;
+}
+.collections-intro h2 { margin-bottom: 0.5rem; }
+.collections-intro p { color: var(--text-muted); font-size: 0.9rem; }
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+  padding: 1rem 2rem 3rem;
+}
+.collection-card {
+  display: block;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  color: var(--text);
+  transition: border-color 0.2s, transform 0.1s;
+  border-top: 3px solid var(--accent);
+}
+.collection-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+.collection-card h3 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+.collection-card .subtitle {
+  font-size: 0.8rem; color: var(--text-muted); font-style: italic;
+  margin-bottom: 0.75rem;
+}
+.collection-card .description {
+  font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+.collection-card .stats {
+  display: flex; gap: 1rem; font-size: 0.75rem; color: var(--text-muted);
+}
+.collection-card .stats .count { color: var(--orange); font-weight: 600; }
+.collection-card .go-deeper {
+  display: inline-block; margin-top: 0.75rem;
+  font-size: 0.8rem; color: var(--accent);
+}
+</style>
+</head>
+<body>
+<header>
+  <h1><a href="/">Dreambase</a></h1>
+  <nav>
+    <a href="/">Browse</a>
+    <a href="/viz">Viz</a>
+    <a href="/ideas">Ideas</a>
+    <a href="/showcases">Showcases</a>
+    <a href="/collections" class="active">Collections</a>
+    <a href="/scholars">Scholars</a>
+    <a href="/projects">Projects</a>
+    <a href="/values">Values</a>
+  </nav>
+</header>
+
+<div class="collections-intro">
+  <h2>Collections</h2>
+  <p>Curated rabbit holes through 2+ years of intellectual archaeology. Each collection groups conversations by theme — click to descend.</p>
+</div>
+
+<div class="collection-grid">
+  {% for col in collections %}
+  <a href="/collection/{{ col.slug }}" class="collection-card" style="border-top-color: {{ col.color }}">
+    <h3>{{ col.title }}</h3>
+    {% if col.subtitle %}<div class="subtitle">{{ col.subtitle }}</div>{% endif %}
+    <div class="description">{{ col.description[:200] }}{{ '...' if (col.description or '')|length > 200 }}</div>
+    <div class="stats">
+      <span><span class="count">{{ col.conversation_ids|length }}</span> conversations</span>
+    </div>
+    <span class="go-deeper">Go deeper →</span>
+  </a>
+  {% endfor %}
+</div>
+
+</body>
+</html>

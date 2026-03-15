@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Values — Dreambase</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+.values-intro {
+  padding: 2rem;
+  max-width: 800px;
+}
+.values-intro h2 { margin-bottom: 0.5rem; }
+.values-intro .subtitle {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+.values-intro p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; }
+
+/* Value cards */
+.value-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin: 1rem 2rem;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.value-card:hover { border-color: var(--accent); }
+.value-header {
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.value-header h3 {
+  font-size: 1.05rem;
+  margin-bottom: 0.3rem;
+}
+.value-claim {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.value-stats {
+  display: flex;
+  gap: 1rem;
+  flex-shrink: 0;
+  align-items: center;
+}
+.stat-box {
+  text-align: center;
+  min-width: 60px;
+}
+.stat-box .num {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--accent);
+  display: block;
+}
+.stat-box .label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.sent-bar {
+  width: 60px;
+  height: 8px;
+  background: var(--bg);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 0.3rem;
+}
+.sent-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+/* Expandable details */
+.value-details {
+  display: none;
+  padding: 0 1.5rem 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.value-details.open { display: block; }
+.expand-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.expand-btn:hover { background: var(--accent); color: white; }
+
+/* Evidence section */
+.evidence-list {
+  margin-top: 1rem;
+}
+.evidence-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--bg);
+}
+.evidence-item:last-child { border-bottom: none; }
+.evidence-item a {
+  flex: 1;
+  font-size: 0.88rem;
+}
+.evidence-item .pages {
+  font-size: 0.8rem;
+  color: var(--orange);
+  font-weight: 600;
+  min-width: 40px;
+  text-align: right;
+}
+
+/* Sparkline in value card */
+.mini-sparkline {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Topic constellation mini */
+.topic-section {
+  margin-top: 1.5rem;
+}
+.topic-section h4 {
+  font-size: 0.85rem;
+  color: var(--orange);
+  margin-bottom: 0.5rem;
+}
+
+/* Maturity funnel */
+.funnel-section {
+  padding: 2rem;
+}
+.funnel-section h3 {
+  margin-bottom: 0.3rem;
+}
+.funnel-subtitle {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+.funnel-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.funnel-label {
+  min-width: 100px;
+  font-size: 0.85rem;
+  text-align: right;
+  color: var(--text-muted);
+}
+.funnel-bar-container {
+  flex: 1;
+  display: flex;
+  height: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.funnel-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: white;
+  min-width: 24px;
+  transition: flex 0.3s;
+}
+.funnel-segment.sketch { background: #555; }
+.funnel-segment.design { background: #00bcd4; }
+.funnel-segment.prototype { background: #4caf50; }
+.funnel-segment.built { background: #ff9800; }
+
+/* Sentiment spectrum */
+.spectrum {
+  padding: 2rem;
+}
+.spectrum h3 { margin-bottom: 0.3rem; }
+.spectrum-subtitle {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+.spectrum-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.spectrum-label {
+  min-width: 120px;
+  font-size: 0.85rem;
+  text-align: right;
+}
+.spectrum-bar {
+  flex: 1;
+  height: 20px;
+  background: var(--bg);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.spectrum-fill {
+  height: 100%;
+  border-radius: 4px;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.spectrum-val {
+  min-width: 50px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+</style>
+</head>
+<body>
+<header>
+  <h1><a href="/">Dreambase</a></h1>
+  <nav>
+    <a href="/">Browse</a>
+    <a href="/viz">Viz</a>
+    <a href="/ideas">Ideas</a>
+    <a href="/showcases">Showcases</a>
+    <a href="/collections">Collections</a>
+    <a href="/scholars">Scholars</a>
+    <a href="/projects">Projects</a>
+    <a href="/values" class="active">Values</a>
+  </nav>
+</header>
+
+<div class="values-intro">
+  <h2>Scholarly & Engineering Values</h2>
+  <div class="subtitle">what 4,308 conversations reveal about how you think</div>
+  <p>These values are mined from the database — topic prevalence, user message sentiment,
+  idea maturity, and engagement depth. Each value card shows the evidence and links to
+  the conversations that demonstrate it. Click "Go deeper" to see the rabbit hole.</p>
+</div>
+
+<!-- Sentiment Spectrum -->
+<div class="spectrum">
+  <h3>Passion Spectrum</h3>
+  <div class="spectrum-subtitle">your enthusiasm mapped by topic — what lights you up vs. what you wrestle with</div>
+  {% for t in topic_stats[:9] %}
+  <div class="spectrum-row">
+    <a href="/?tag={{ t.name }}" class="spectrum-label">{{ t.name }}</a>
+    <div class="spectrum-bar">
+      {% set sent = t.user_sentiment or 0 %}
+      {% set width = ((sent + 0.5) / 1.0 * 100)|int %}
+      <div class="spectrum-fill" style="width:{{ width }}%;background:{% if sent > 0.2 %}var(--green){% elif sent > 0.15 %}var(--cyan){% else %}var(--accent){% endif %};"></div>
+    </div>
+    <span class="spectrum-val">{{ "%+.3f"|format(sent) }}</span>
+    <span class="spectrum-val" style="color:var(--orange);">{{ t.total_pages|int }}p</span>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Value Cards -->
+<div id="value-cards">
+
+<div class="value-card">
+  <div class="value-header" onclick="toggleDetails(this)">
+    <div>
+      <h3>Implicit Pedagogy Over Explicit Tutorial</h3>
+      <div class="value-claim">The best game mechanics teach through play, not through text boxes. If you need a tutorial popup to explain the mechanic, the level design failed.</div>
+    </div>
+    <div class="value-stats">
+      <div class="stat-box"><span class="num">{{ topic_stats|selectattr('name','eq','educational')|map(attribute='convos')|first|default(0) }}</span><span class="label">convos</span></div>
+      <button class="expand-btn">Go deeper</button>
+    </div>
+  </div>
+  <div class="value-details">
+    <div class="topic-section">
+      <h4>Evidence: conversations where this value drives the design</h4>
+      <div class="evidence-list">
+        {% for c in tag_top_convos.get('educational', []) %}
+        <div class="evidence-item">
+          <span class="source-badge {{ c.source_name }}">{{ c.source_name }}</span>
+          <a href="/conversation/{{ c.id }}">{{ c.title }}</a>
+          <span class="pages">{{ c.estimated_pages|int }}p</span>
+        </div>
+        {% endfor %}
+      </div>
+      <p style="margin-top:0.75rem;font-size:0.82rem;color:var(--text-muted);">
+        <a href="/?tag=educational">Browse all educational conversations</a> |
+        <a href="/?tag=game_idea">Browse all game ideas</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="value-card">
+  <div class="value-header" onclick="toggleDetails(this)">
+    <div>
+      <h3>Discovery Over Instruction</h3>
+      <div class="value-claim">Hidden complexity that reveals itself through play. The alchemy transmutation graph is deliberately hidden — discovery IS the game. Procedural generation prevents solved metas.</div>
+    </div>
+    <div class="value-stats">
+      <div class="stat-box"><span class="num">{{ topic_stats|selectattr('name','eq','alchemy')|map(attribute='convos')|first|default(0) }}</span><span class="label">convos</span></div>
+      <button class="expand-btn">Go deeper</button>
+    </div>
+  </div>
+  <div class="value-details">
+    <div class="topic-section">
+      <h4>Evidence: alchemy + esoteric as design frameworks</h4>
+      <div class="evidence-list">
+        {% for c in tag_top_convos.get('alchemy', []) %}
+        <div class="evidence-item">
+          <span class="source-badge {{ c.source_name }}">{{ c.source_name }}</span>
+          <a href="/conversation/{{ c.id }}">{{ c.title }}</a>
+          <span class="pages">{{ c.estimated_pages|int }}p</span>
+        </div>
+        {% endfor %}
+      </div>
+      <p style="margin-top:0.75rem;font-size:0.82rem;color:var(--text-muted);">
+        <a href="/?tag=alchemy">Browse all alchemy conversations</a> |
+        <a href="/dream/alchemy-board-game">Alchemy Board Game showcase</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="value-card">
+  <div class="value-header" onclick="toggleDetails(this)">
+    <div>
+      <h3>Data Density & Honest Visualization</h3>
+      <div class="value-claim">Tufte-inspired: every visual element encodes data. No chartjunk, no legends floating off to the side. Numbers speak for themselves — "662 pages" hits harder than "a very long conversation."</div>
+    </div>
+    <div class="value-stats">
+      <div class="stat-box"><span class="num">7</span><span class="label">viz types</span></div>
+      <button class="expand-btn">Go deeper</button>
+    </div>
+  </div>
+  <div class="value-details">
+    <div class="topic-section">
+      <h4>Evidence: this project IS the evidence</h4>
+      <div class="evidence-list">
+        <div class="evidence-item">
+          <span class="source-badge" style="background:#2a2a3e;color:var(--accent);">DREAMBASE</span>
+          <a href="/viz">7 Tufte-inspired visualizations</a>
+          <span class="pages">live</span>
+        </div>
+        {% for c in tag_top_convos.get('coding', [])[:3] %}
+        <div class="evidence-item">
+          <span class="source-badge {{ c.source_name }}">{{ c.source_name }}</span>
+          <a href="/conversation/{{ c.id }}">{{ c.title }}</a>
+          <span class="pages">{{ c.estimated_pages|int }}p</span>
+        </div>
+        {% endfor %}
+      </div>
+      <p style="margin-top:0.75rem;font-size:0.82rem;color:var(--text-muted);">
+        <a href="/viz">View all visualizations</a> |
+        <a href="/?tag=coding">Browse coding conversations</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="value-card">
+  <div class="value-header" onclick="toggleDetails(this)">
+    <div>
+      <h3>Systems Thinking & Cross-Pollination</h3>
+      <div class="value-claim">Everything connects. Alchemy informs game design. PKD informs prompt engineering. MTG draft strategy informs Bayesian reasoning. The best ideas emerge at the intersection of domains.</div>
+    </div>
+    <div class="value-stats">
+      <div class="stat-box"><span class="num">{{ topic_stats|selectattr('name','eq','esoteric')|map(attribute='convos')|first|default(0) }}</span><span class="label">convos</span></div>
+      <button class="expand-btn">Go deeper</button>
+    </div>
+  </div>
+  <div class="value-details">
+    <div class="topic-section">
+      <h4>Evidence: esoteric + interdisciplinary conversations</h4>
+      <div class="evidence-list">
+        {% for c in tag_top_convos.get('esoteric', []) %}
+        <div class="evidence-item">
+          <span class="source-badge {{ c.source_name }}">{{ c.source_name }}</span>
+          <a href="/conversation/{{ c.id }}">{{ c.title }}</a>
+          <span class="pages">{{ c.estimated_pages|int }}p</span>
+        </div>
+        {% endfor %}
+      </div>
+      <p style="margin-top:0.75rem;font-size:0.82rem;color:var(--text-muted);">
+        <a href="/?tag=esoteric">Browse esoteric conversations</a> |
+        <a href="/?tag=pkd">Browse PKD conversations</a> |
+        <a href="/?tag=mtg">Browse MTG conversations</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="value-card">
+  <div class="value-header" onclick="toggleDetails(this)">
+    <div>
+      <h3>Honest Self-Reflection</h3>
+      <div class="value-claim">Willing to confront what the data shows. 397 ideas, 10 built. The funnel is narrow and that's worth knowing. The mirror is the product — not another chatbot, not a backup tool.</div>
+    </div>
+    <div class="value-stats">
+      <div class="stat-box"><span class="num">397</span><span class="label">ideas</span></div>
+      <button class="expand-btn">Go deeper</button>
+    </div>
+  </div>
+  <div class="value-details">
+    <div class="topic-section">
+      <h4>Evidence: the maturity funnel tells the story</h4>
+      <div class="evidence-list">
+        <div class="evidence-item">
+          <span class="source-badge" style="background:#2a2a3e;color:var(--accent);">DATA</span>
+          <a href="/ideas">230 game sketches, 34 designs, 19 prototypes, 1 built</a>
+          <span class="pages">funnel</span>
+        </div>
+        {% for c in tag_top_convos.get('personal', [])[:3] %}
+        <div class="evidence-item">
+          <span class="source-badge {{ c.source_name }}">{{ c.source_name }}</span>
+          <a href="/conversation/{{ c.id }}">{{ c.title }}</a>
+          <span class="pages">{{ c.estimated_pages|int }}p</span>
+        </div>
+        {% endfor %}
+      </div>
+      <p style="margin-top:0.75rem;font-size:0.82rem;color:var(--text-muted);">
+        <a href="/ideas">Browse all ideas</a> |
+        <a href="/?tag=personal">Browse personal conversations</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+</div><!-- /value-cards -->
+
+<!-- Maturity Funnel -->
+<div class="funnel-section">
+  <h3>The Idea Funnel</h3>
+  <div class="funnel-subtitle">397 ideas, from napkin sketch to shipped product — most dreams die young, and that's honest</div>
+  {% set categories = {} %}
+  {% for row in maturity_funnel %}
+    {% if row.category not in categories %}{% set _ = categories.update({row.category: {}}) %}{% endif %}
+    {% set _ = categories[row.category].update({row.maturity: row.cnt}) %}
+  {% endfor %}
+  {% for cat in ['game', 'app', 'educational', 'other'] %}
+  {% set data = categories.get(cat, {}) %}
+  {% set total = data.get('sketch',0) + data.get('design',0) + data.get('prototype',0) + data.get('built',0) %}
+  {% if total > 0 %}
+  <div class="funnel-row">
+    <span class="funnel-label">{{ cat }} ({{ total }})</span>
+    <div class="funnel-bar-container">
+      {% for mat in ['sketch', 'design', 'prototype', 'built'] %}
+      {% set n = data.get(mat, 0) %}
+      {% if n > 0 %}
+      <div class="funnel-segment {{ mat }}" style="flex:{{ n }};" title="{{ mat }}: {{ n }}">{{ n }}</div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+  {% endfor %}
+  <div style="display:flex;gap:1rem;margin-top:0.75rem;font-size:0.7rem;color:var(--text-muted);">
+    <span><span style="display:inline-block;width:10px;height:10px;background:#555;border-radius:2px;"></span> sketch</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:#00bcd4;border-radius:2px;"></span> design</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:#4caf50;border-radius:2px;"></span> prototype</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:#ff9800;border-radius:2px;"></span> built</span>
+  </div>
+</div>
+
+<!-- All Topics Table -->
+<div style="padding:2rem;">
+  <h3>All Topics by Engagement</h3>
+  <div style="color:var(--text-muted);font-style:italic;font-size:0.85rem;margin-bottom:1rem;">
+    every tag in the database, ranked by how much you've written about it
+  </div>
+  <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+    <thead>
+      <tr style="border-bottom:2px solid var(--border);text-align:left;">
+        <th style="padding:0.5rem;">Topic</th>
+        <th style="padding:0.5rem;text-align:right;">Convos</th>
+        <th style="padding:0.5rem;text-align:right;">Pages</th>
+        <th style="padding:0.5rem;text-align:right;">Avg Pages</th>
+        <th style="padding:0.5rem;text-align:right;">Sentiment</th>
+        <th style="padding:0.5rem;text-align:right;">Ideas</th>
+        <th style="padding:0.5rem;">Trend</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in topic_stats %}
+      <tr style="border-bottom:1px solid var(--bg);">
+        <td style="padding:0.4rem 0.5rem;"><a href="/?tag={{ t.name }}">{{ t.name }}</a></td>
+        <td style="padding:0.4rem 0.5rem;text-align:right;color:var(--accent);">{{ t.convos }}</td>
+        <td style="padding:0.4rem 0.5rem;text-align:right;color:var(--orange);">{{ t.total_pages|int }}</td>
+        <td style="padding:0.4rem 0.5rem;text-align:right;">{{ t.avg_pages }}</td>
+        <td style="padding:0.4rem 0.5rem;text-align:right;color:{% if (t.user_sentiment or 0) > 0.2 %}var(--green){% elif (t.user_sentiment or 0) > 0.15 %}var(--cyan){% else %}var(--accent){% endif %};">{{ "%+.3f"|format(t.user_sentiment or 0) }}</td>
+        <td style="padding:0.4rem 0.5rem;text-align:right;">{{ t.idea_count }}</td>
+        <td style="padding:0.4rem 0.5rem;">
+          <svg class="mini-sparkline" width="80" height="16" id="spark-{{ t.name }}"></svg>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+function toggleDetails(header) {
+  const details = header.parentElement.querySelector('.value-details');
+  details.classList.toggle('open');
+  const btn = header.querySelector('.expand-btn');
+  btn.textContent = details.classList.contains('open') ? 'Close' : 'Go deeper';
+}
+
+// Sparklines
+const tagMonthly = {{ tag_monthly|tojson }};
+const byTag = {};
+tagMonthly.forEach(r => {
+  if (!byTag[r.name]) byTag[r.name] = [];
+  byTag[r.name].push(r.cnt);
+});
+
+Object.keys(byTag).forEach(name => {
+  const el = document.getElementById('spark-' + name);
+  if (!el) return;
+  const vals = byTag[name];
+  const max = Math.max(...vals, 1);
+  const w = 80, h = 16;
+  const step = w / Math.max(vals.length - 1, 1);
+  const points = vals.map((v, i) => `${i * step},${h - (v / max) * (h - 2) - 1}`).join(' ');
+  el.innerHTML = `<polyline points="${points}" fill="none" stroke="#7c6fe0" stroke-width="1.5"/>`;
+});
+</script>
+
+</body>
+</html>

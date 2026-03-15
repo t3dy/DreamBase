@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ conv.title }} — Dreambase</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <h1><a href="/">Dreambase</a></h1>
+  <nav>
+    <a href="/">← Back</a>
+    <a href="/viz">Viz</a>
+    <a href="/ideas">Ideas</a>
+    <a href="/showcases">Showcases</a>
+    <a href="/collections">Collections</a>
+    <a href="/scholars">Scholars</a>
+    <a href="/projects">Projects</a>
+    <a href="/values">Values</a>
+  </nav>
+</header>
+
+<div class="conv-header">
+  <h2>{{ conv.title or 'Untitled' }}</h2>
+  <div class="conv-meta">
+    <span class="source-badge {{ conv.source_name }}">{{ conv.source_name }}</span>
+    <span>{{ (conv.created_at or '')[:10] }}</span>
+    <span>{{ conv.message_count }} messages</span>
+    <span>{{ "%.0f"|format(conv.estimated_pages or 0) }} pages</span>
+  </div>
+
+  {% if tags %}
+  <div class="conv-tags">
+    {% for t in tags %}
+    <a href="/?tag={{ t.name }}" class="pill">{{ t.name }} <span class="method">{{ t.method }}</span></a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if conv.summary %}
+  <div class="conv-summary">
+    <strong>Summary:</strong> {{ conv.summary }}
+  </div>
+  {% endif %}
+
+  {% if ideas %}
+  <div class="ideas-section">
+    <h3>Ideas in this conversation</h3>
+    {% for idea in ideas %}
+    <div class="idea-card">
+      <strong>{{ idea.name }}</strong>
+      <span class="pill mini">{{ idea.category }}</span>
+      <span class="pill mini">{{ idea.maturity }}</span>
+      {% if idea.description %}<p>{{ idea.description }}</p>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+<div class="messages">
+  {% for msg in messages %}
+  <div class="msg {{ msg.role }}">
+    <div class="msg-header">
+      <span class="role-label">{{ msg.role }}</span>
+      {% if msg.created_at %}<span class="msg-date">{{ msg.created_at[:16] }}</span>{% endif %}
+      {% if msg.sentiment_label %}
+      <span class="sentiment {{ msg.sentiment_label }}">{{ msg.sentiment_label }} ({{ "%.2f"|format(msg.sentiment_vader or 0) }})</span>
+      {% endif %}
+    </div>
+    <div class="msg-body">{{ msg.content[:5000] }}{% if (msg.content or '')|length > 5000 %}<span class="truncated">... [truncated, {{ msg.char_count }} chars total]</span>{% endif %}</div>
+  </div>
+  {% endfor %}
+</div>
+
+{% if total_msg_pages > 1 %}
+<div class="pagination">
+  {% if msg_page > 1 %}
+  <a href="/conversation/{{ conv.id }}?msg_page={{ msg_page-1 }}">← Prev</a>
+  {% endif %}
+  <span>Messages page {{ msg_page }} of {{ total_msg_pages }}</span>
+  {% if msg_page < total_msg_pages %}
+  <a href="/conversation/{{ conv.id }}?msg_page={{ msg_page+1 }}">Next →</a>
+  {% endif %}
+</div>
+{% endif %}
+
+</body>
+</html>

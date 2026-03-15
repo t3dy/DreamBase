@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Viz — Dreambase</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+.viz-controls {
+  padding: 1rem 2rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.viz-toggle {
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+  user-select: none;
+}
+.viz-toggle:hover { border-color: var(--accent); color: var(--text); }
+.viz-toggle.active { background: var(--accent); color: white; border-color: var(--accent); }
+.viz-pane {
+  margin: 1rem 2rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.viz-pane.hidden { display: none; }
+.viz-pane-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.viz-pane-header h3 { font-size: 0.95rem; color: var(--accent); }
+.viz-pane-header .subtitle { font-size: 0.7rem; color: var(--text-muted); font-style: italic; }
+.viz-pane-body { padding: 1rem; overflow-x: auto; }
+.viz-pane-body canvas { width: 100%; }
+
+/* Timeline */
+.timeline-row { display: flex; align-items: center; margin-bottom: 2px; }
+.timeline-label { width: 110px; font-size: 0.7rem; color: var(--text-muted); text-align: right; padding-right: 8px; flex-shrink: 0; }
+.timeline-bar-area { flex: 1; display: flex; height: 18px; gap: 1px; }
+.timeline-cell {
+  height: 100%;
+  border-radius: 2px;
+  min-width: 2px;
+  position: relative;
+}
+.timeline-cell:hover { opacity: 0.8; }
+.timeline-cell .tt {
+  display: none; position: absolute; bottom: 100%; left: 0; background: #000;
+  color: #fff; padding: 2px 6px; font-size: 0.65rem; border-radius: 4px;
+  white-space: nowrap; z-index: 5;
+}
+.timeline-cell:hover .tt { display: block; }
+.timeline-month-labels { display: flex; margin-left: 110px; }
+.timeline-month-labels span { font-size: 0.55rem; color: var(--text-muted); flex: 1; text-align: center; }
+
+/* Constellation */
+.constellation-svg { width: 100%; min-height: 400px; }
+.constellation-svg text { font-family: 'Segoe UI', system-ui; }
+.constellation-svg .node-label { font-size: 11px; fill: var(--text); text-anchor: middle; }
+.constellation-svg .edge { stroke: var(--border); stroke-opacity: 0.6; }
+.constellation-svg .node { cursor: pointer; }
+.constellation-svg .node:hover { opacity: 0.8; }
+
+/* Heatmap */
+.heatmap-grid { display: flex; flex-direction: column; gap: 1px; }
+.heatmap-row { display: flex; gap: 1px; align-items: center; }
+.heatmap-cell {
+  width: 10px; height: 10px; border-radius: 2px;
+  background: var(--bg); position: relative;
+}
+.heatmap-cell:hover .tt { display: block; }
+.heatmap-label { width: 30px; font-size: 0.55rem; color: var(--text-muted); text-align: right; padding-right: 4px; }
+.heatmap-month-labels { display: flex; margin-left: 34px; gap: 1px; }
+.heatmap-month-labels span { font-size: 0.5rem; color: var(--text-muted); }
+
+/* Funnel */
+.funnel-row { display: flex; align-items: center; margin-bottom: 6px; }
+.funnel-label { width: 90px; font-size: 0.75rem; color: var(--text-muted); text-align: right; padding-right: 10px; }
+.funnel-bars { flex: 1; display: flex; gap: 2px; height: 24px; }
+.funnel-bar { height: 100%; border-radius: 3px; display: flex; align-items: center; padding: 0 6px; font-size: 0.65rem; color: white; font-weight: 600; min-width: 20px; }
+
+/* Sentiment */
+.sentiment-chart { width: 100%; min-height: 200px; }
+
+/* Treemap */
+.treemap-container { display: flex; flex-wrap: wrap; gap: 2px; }
+.treemap-block {
+  border-radius: 4px; padding: 4px 6px; font-size: 0.6rem;
+  color: white; display: flex; flex-direction: column;
+  justify-content: center; overflow: hidden; min-height: 30px;
+  position: relative;
+}
+.treemap-block strong { font-size: 0.7rem; }
+.treemap-block span { opacity: 0.7; font-size: 0.55rem; }
+
+/* Sparkline table */
+.spark-table { width: 100%; border-collapse: collapse; }
+.spark-table th { font-size: 0.7rem; color: var(--text-muted); text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--border); }
+.spark-table td { font-size: 0.8rem; padding: 6px 8px; border-bottom: 1px solid #222; }
+.spark-table .tag-name { color: var(--accent); font-weight: 600; }
+.spark-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.spark-table .sent-pos { color: var(--green); }
+.spark-table .sent-neg { color: var(--red); }
+.spark-table .sent-neu { color: var(--text-muted); }
+.sparkline { display: inline-block; vertical-align: middle; }
+</style>
+</head>
+<body>
+<header>
+  <h1><a href="/">Dreambase</a></h1>
+  <nav>
+    <a href="/">Browse</a>
+    <a href="/viz" class="active">Viz</a>
+    <a href="/ideas">Ideas</a>
+    <a href="/showcases">Showcases</a>
+    <a href="/collections">Collections</a>
+    <a href="/scholars">Scholars</a>
+    <a href="/projects">Projects</a>
+    <a href="/values">Values</a>
+  </nav>
+</header>
+
+<div class="viz-controls" id="toggles">
+  <span style="color:var(--text-muted);font-size:0.75rem;padding:0.3rem 0">Show:</span>
+  <button class="viz-toggle active" data-pane="timeline">Timeline</button>
+  <button class="viz-toggle active" data-pane="constellation">Topics</button>
+  <button class="viz-toggle active" data-pane="heatmap">Activity</button>
+  <button class="viz-toggle active" data-pane="funnel">Ideas</button>
+  <button class="viz-toggle active" data-pane="sentiment">Sentiment</button>
+  <button class="viz-toggle active" data-pane="treemap">Scale</button>
+  <button class="viz-toggle active" data-pane="sparklines">Sparklines</button>
+  <button class="viz-toggle" onclick="toggleAll()" style="margin-left:auto; border-style:dashed">All / None</button>
+</div>
+
+<!-- 1. INTELLECTUAL TIMELINE -->
+<div class="viz-pane" id="pane-timeline">
+  <div class="viz-pane-header">
+    <div>
+      <h3>Intellectual Timeline</h3>
+      <span class="subtitle">every conversation you ever had, arranged by when you had it</span>
+    </div>
+  </div>
+  <div class="viz-pane-body" id="timeline-body"></div>
+</div>
+
+<!-- 2. TOPIC CONSTELLATION -->
+<div class="viz-pane" id="pane-constellation">
+  <div class="viz-pane-header">
+    <div>
+      <h3>Topic Constellation</h3>
+      <span class="subtitle">your brain's wiring diagram (some connections may surprise you)</span>
+    </div>
+  </div>
+  <div class="viz-pane-body">
+    <svg id="constellation-svg" class="constellation-svg" viewBox="0 0 700 420"></svg>
+  </div>
+</div>
+
+<!-- 3. ACTIVITY HEATMAP -->
+<div class="viz-pane" id="pane-heatmap">
+  <div class="viz-pane-header">
+    <div>
+      <h3>Activity Heatmap</h3>
+      <span class="subtitle">the days you couldn't stop talking to computers (and the days you touched grass)</span>
+    </div>
+  </div>
+  <div class="viz-pane-body" id="heatmap-body"></div>
+</div>
+
+<!-- 4. IDEA FUNNEL -->
+<div class="viz-pane" id="pane-funnel">
+  <div class="viz-pane-header">
+    <div>
+      <h3>Idea Maturity Funnel</h3>
+      <span class="subtitle">397 ideas entered. 10 survived to "built." darwin would be proud.</span>
+    </div>
+  </div>
+  <div class="viz-pane-body" id="funnel-body"></div>
+</div>
+
+<!-- 5. SENTIMENT RIVER -->
+<div class="viz-pane" id="pane-sentiment">
+  <div class="viz-pane-header">
+    <div>
+      <h3>Sentiment River</h3>
+      <span class="subtitle">your emotional weather report, month by month</span>
+    </div>
+  </div>
+  <div class="viz-pane-body">
+    <canvas id="sentiment-canvas" height="220"></canvas>
+  </div>
+</div>
+
+<!-- 6. SCALE TREEMAP -->
+<div class="viz-pane" id="pane-treemap">
+  <div class="viz-pane-header">
+    <div>
+      <h3>Conversation Scale</h3>
+      <span class="subtitle">if every conversation were a room, some would be closets and one would be a stadium</span>
+    </div>
+  </div>
+  <div class="viz-pane-body">
+    <div class="treemap-container" id="treemap-body"></div>
+  </div>
+</div>
+
+<!-- 7. SPARKLINE TABLE -->
+<div class="viz-pane" id="pane-sparklines">
+  <div class="viz-pane-header">
+    <div>
+      <h3>Tag Dashboard</h3>
+      <span class="subtitle">tufte's favorite: maximum data, minimum ink, zero chartjunk</span>
+    </div>
+  </div>
+  <div class="viz-pane-body">
+    <table class="spark-table">
+      <thead>
+        <tr><th>Tag</th><th class="num">Convos</th><th class="num">Ideas</th><th class="num">Avg Sent</th><th class="num">Avg Pages</th><th>Trend (6mo)</th></tr>
+      </thead>
+      <tbody id="sparkline-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// Data from Flask
+const timelineData = {{ timeline | tojson }};
+const cooccurrence = {{ cooccurrence | tojson }};
+const tagTotals = {{ tag_totals | tojson }};
+const heatmapData = {{ heatmap | tojson }};
+const ideaFunnel = {{ idea_funnel | tojson }};
+const sentimentData = {{ sentiment | tojson }};
+const treemapData = {{ treemap | tojson }};
+const topConvos = {{ top_convos | tojson }};
+const sparklineTags = {{ sparkline_tags | tojson }};
+const tagTrends = {{ tag_trends | tojson }};
+
+// Source colors
+const SRC_COLORS = {
+  chatgpt: '#4caf50', llm_logs_html: '#7c6fe0', llm_logs_pdf: '#9c7fe0',
+  claude: '#ff9800', sms: '#00bcd4', twitter: '#1da1f2',
+  facebook: '#4267b2', google_chat: '#34a853', pkd_chats: '#e74c3c', gmail: '#ea4335'
+};
+const TAG_COLORS = {
+  game_idea: '#4caf50', esoteric: '#9c27b0', personal: '#ff9800',
+  alchemy: '#ffd700', educational: '#00bcd4', mtg: '#e74c3c',
+  coding: '#2196f3', app_project: '#8bc34a', pkd: '#ff5722'
+};
+
+// Toggle logic
+document.querySelectorAll('.viz-toggle[data-pane]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.classList.toggle('active');
+    const pane = document.getElementById('pane-' + btn.dataset.pane);
+    pane.classList.toggle('hidden', !btn.classList.contains('active'));
+  });
+});
+function toggleAll() {
+  const btns = document.querySelectorAll('.viz-toggle[data-pane]');
+  const anyActive = [...btns].some(b => b.classList.contains('active'));
+  btns.forEach(btn => {
+    if (anyActive) { btn.classList.remove('active'); }
+    else { btn.classList.add('active'); }
+    const pane = document.getElementById('pane-' + btn.dataset.pane);
+    pane.classList.toggle('hidden', anyActive);
+  });
+}
+
+// 1. TIMELINE
+(function() {
+  const body = document.getElementById('timeline-body');
+  // Group by source, then by month
+  const sources = [...new Set(timelineData.map(d => d.source))];
+  const months = [...new Set(timelineData.map(d => d.month))].sort();
+  const lookup = {};
+  timelineData.forEach(d => { lookup[d.source + '|' + d.month] = d; });
+  const maxPages = Math.max(...timelineData.map(d => d.pages || 0), 1);
+
+  let html = '';
+  sources.forEach(src => {
+    html += `<div class="timeline-row"><div class="timeline-label">${src}</div><div class="timeline-bar-area">`;
+    months.forEach(m => {
+      const d = lookup[src + '|' + m];
+      if (d) {
+        const h = Math.max(2, Math.round((d.pages / maxPages) * 18));
+        const w = Math.max(2, Math.round(Math.sqrt(d.cnt) * 2));
+        html += `<div class="timeline-cell" style="width:${w}px;height:${h}px;background:${SRC_COLORS[src]||'#666'};align-self:flex-end"><span class="tt">${m}: ${d.cnt} convos, ${Math.round(d.pages)}p</span></div>`;
+      } else {
+        html += `<div class="timeline-cell" style="width:2px;background:transparent"></div>`;
+      }
+    });
+    html += '</div></div>';
+  });
+  // Month labels (show every 6th)
+  html += '<div class="timeline-month-labels">';
+  months.forEach((m, i) => {
+    html += (i % 6 === 0) ? `<span>${m}</span>` : '<span></span>';
+  });
+  html += '</div>';
+  body.innerHTML = html;
+})();
+
+// 2. CONSTELLATION
+(function() {
+  const svg = document.getElementById('constellation-svg');
+  const W = 700, H = 420;
+  // Position tags in a circle
+  const tags = tagTotals.map(t => t.name);
+  const tagMap = {};
+  tagTotals.forEach(t => tagMap[t.name] = t.cnt);
+  const cx = W/2, cy = H/2, R = 160;
+  const positions = {};
+  tags.forEach((t, i) => {
+    const angle = (i / tags.length) * Math.PI * 2 - Math.PI/2;
+    positions[t] = { x: cx + R * Math.cos(angle), y: cy + R * Math.sin(angle) };
+  });
+  // Draw edges
+  const maxEdge = Math.max(...cooccurrence.map(c => c.cnt), 1);
+  cooccurrence.forEach(c => {
+    const p1 = positions[c.tag1], p2 = positions[c.tag2];
+    if (!p1 || !p2) return;
+    const w = Math.max(0.5, (c.cnt / maxEdge) * 8);
+    const opacity = Math.max(0.15, c.cnt / maxEdge);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', p1.x); line.setAttribute('y1', p1.y);
+    line.setAttribute('x2', p2.x); line.setAttribute('y2', p2.y);
+    line.setAttribute('stroke', '#555');
+    line.setAttribute('stroke-width', w);
+    line.setAttribute('stroke-opacity', opacity);
+    svg.appendChild(line);
+    // Edge label for strong connections
+    if (c.cnt > 80) {
+      const tx = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      tx.setAttribute('x', (p1.x + p2.x)/2);
+      tx.setAttribute('y', (p1.y + p2.y)/2 - 4);
+      tx.setAttribute('fill', '#666');
+      tx.setAttribute('font-size', '9');
+      tx.setAttribute('text-anchor', 'middle');
+      tx.textContent = c.cnt;
+      svg.appendChild(tx);
+    }
+  });
+  // Draw nodes
+  const maxTag = Math.max(...tagTotals.map(t => t.cnt), 1);
+  tags.forEach(t => {
+    const p = positions[t];
+    const r = Math.max(12, Math.sqrt(tagMap[t] / maxTag) * 35);
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', p.x); circle.setAttribute('cy', p.y);
+    circle.setAttribute('r', r);
+    circle.setAttribute('fill', TAG_COLORS[t] || '#666');
+    circle.setAttribute('fill-opacity', '0.7');
+    circle.setAttribute('class', 'node');
+    svg.appendChild(circle);
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', p.x); label.setAttribute('y', p.y + r + 14);
+    label.setAttribute('class', 'node-label');
+    label.textContent = `${t} (${tagMap[t]})`;
+    svg.appendChild(label);
+  });
+})();
+
+// 3. HEATMAP
+(function() {
+  const body = document.getElementById('heatmap-body');
+  // Aggregate by day
+  const dayMap = {};
+  heatmapData.forEach(d => {
+    dayMap[d.day] = (dayMap[d.day] || 0) + d.cnt;
+  });
+  const days = Object.keys(dayMap).sort();
+  if (!days.length) { body.innerHTML = '<em>No data</em>'; return; }
+
+  const startDate = new Date(days[0]);
+  const endDate = new Date(days[days.length - 1]);
+  const maxVal = Math.max(...Object.values(dayMap));
+
+  // Build weeks
+  const weeks = [];
+  let current = new Date(startDate);
+  current.setDate(current.getDate() - current.getDay()); // Start on Sunday
+  while (current <= endDate) {
+    const week = [];
+    for (let d = 0; d < 7; d++) {
+      const key = current.toISOString().slice(0, 10);
+      week.push({ day: key, val: dayMap[key] || 0, dow: d });
+      current.setDate(current.getDate() + 1);
+    }
+    weeks.push(week);
+  }
+
+  const dayNames = ['S','M','T','W','T','F','S'];
+  let html = '<div class="heatmap-grid">';
+  for (let dow = 0; dow < 7; dow++) {
+    html += `<div class="heatmap-row"><div class="heatmap-label">${dayNames[dow]}</div>`;
+    weeks.forEach(week => {
+      const cell = week[dow];
+      if (!cell) { html += '<div class="heatmap-cell"></div>'; return; }
+      const intensity = cell.val ? Math.max(0.15, Math.min(1, cell.val / (maxVal * 0.4))) : 0;
+      const bg = cell.val ? `rgba(124,111,224,${intensity})` : 'rgba(255,255,255,0.03)';
+      html += `<div class="heatmap-cell" style="background:${bg}" title="${cell.day}: ${cell.val} convos"></div>`;
+    });
+    html += '</div>';
+  }
+  html += '</div>';
+
+  // Month labels
+  html += '<div class="heatmap-month-labels">';
+  let lastMonth = '';
+  weeks.forEach((week, i) => {
+    const m = week[0].day.slice(0, 7);
+    if (m !== lastMonth) { html += `<span style="width:${11}px">${m.slice(5)}</span>`; lastMonth = m; }
+  });
+  html += '</div>';
+  body.innerHTML = html;
+})();
+
+// 4. IDEA FUNNEL
+(function() {
+  const body = document.getElementById('funnel-body');
+  const categories = [...new Set(ideaFunnel.map(d => d.category))];
+  const maturities = ['sketch', 'design', 'prototype', 'built'];
+  const matColors = { sketch: '#555', design: '#00bcd4', prototype: '#4caf50', built: '#8bc34a' };
+  const lookup = {};
+  ideaFunnel.forEach(d => { lookup[d.category + '|' + d.maturity] = d.cnt; });
+  const maxCnt = Math.max(...ideaFunnel.map(d => d.cnt));
+
+  let html = '<div style="display:flex;gap:0.5rem;margin-bottom:8px">';
+  maturities.forEach(m => {
+    html += `<span style="font-size:0.7rem;color:${matColors[m]}">\u25CF ${m}</span>`;
+  });
+  html += '</div>';
+
+  categories.forEach(cat => {
+    html += `<div class="funnel-row"><div class="funnel-label">${cat}</div><div class="funnel-bars">`;
+    maturities.forEach(mat => {
+      const cnt = lookup[cat + '|' + mat] || 0;
+      if (cnt > 0) {
+        const w = Math.max(20, (cnt / maxCnt) * 400);
+        html += `<div class="funnel-bar" style="width:${w}px;background:${matColors[mat]}">${cnt}</div>`;
+      }
+    });
+    html += '</div></div>';
+  });
+  body.innerHTML = html;
+})();
+
+// 5. SENTIMENT RIVER
+(function() {
+  const canvas = document.getElementById('sentiment-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.parentElement.clientWidth || 800;
+  const W = canvas.width, H = 220;
+
+  // Aggregate by month
+  const monthMap = {};
+  sentimentData.forEach(d => {
+    if (!monthMap[d.month]) monthMap[d.month] = { pos: 0, neg: 0, neu: 0, cnt: 0 };
+    monthMap[d.month].pos += d.pos || 0;
+    monthMap[d.month].neg += d.neg || 0;
+    monthMap[d.month].neu += d.neu || 0;
+    monthMap[d.month].cnt += d.cnt || 0;
+  });
+  const months = Object.keys(monthMap).sort();
+  if (!months.length) return;
+
+  const maxCnt = Math.max(...months.map(m => monthMap[m].cnt));
+  const midY = H / 2;
+  const barW = Math.max(2, (W - 40) / months.length);
+
+  // Axis
+  ctx.strokeStyle = '#333';
+  ctx.beginPath();
+  ctx.moveTo(30, midY);
+  ctx.lineTo(W, midY);
+  ctx.stroke();
+
+  ctx.font = '9px system-ui';
+  ctx.fillStyle = '#666';
+  ctx.fillText('+pos', 2, 15);
+  ctx.fillText('-neg', 2, H - 5);
+
+  months.forEach((m, i) => {
+    const d = monthMap[m];
+    const x = 30 + i * barW;
+    const scale = (H * 0.45) / maxCnt;
+
+    // Positive (above axis)
+    const posH = d.pos * scale;
+    ctx.fillStyle = 'rgba(76, 175, 80, 0.7)';
+    ctx.fillRect(x, midY - posH, barW - 1, posH);
+
+    // Neutral (stacked above positive)
+    const neuH = d.neu * scale * 0.3;
+    ctx.fillStyle = 'rgba(136, 136, 136, 0.3)';
+    ctx.fillRect(x, midY - posH - neuH, barW - 1, neuH);
+
+    // Negative (below axis)
+    const negH = d.neg * scale;
+    ctx.fillStyle = 'rgba(231, 76, 60, 0.7)';
+    ctx.fillRect(x, midY, barW - 1, negH);
+
+    // Month label (every 3rd)
+    if (i % 3 === 0) {
+      ctx.fillStyle = '#666';
+      ctx.fillText(m.slice(2), x, H - 1);
+    }
+  });
+})();
+
+// 6. TREEMAP
+(function() {
+  const body = document.getElementById('treemap-body');
+  const totalPages = treemapData.reduce((s, d) => s + (d.total_pages || 0), 0);
+  const containerW = body.parentElement.clientWidth - 32 || 800;
+
+  let html = '';
+  treemapData.forEach(d => {
+    const frac = (d.total_pages || 0) / totalPages;
+    const area = frac * containerW * 200;
+    const w = Math.max(60, Math.sqrt(area) * 1.6);
+    const h = Math.max(40, area / w);
+    const color = SRC_COLORS[d.source] || '#666';
+    html += `<div class="treemap-block" style="width:${w}px;height:${h}px;background:${color}">
+      <strong>${d.source}</strong>
+      <span>${d.convos} convos</span>
+      <span>${Math.round(d.total_pages)}p / ${d.text_mb}MB</span>
+    </div>`;
+  });
+
+  // Top conversations as tiny blocks
+  html += '<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:1px">';
+  topConvos.forEach(c => {
+    const w = Math.max(3, Math.sqrt(c.estimated_pages) * 0.8);
+    const color = SRC_COLORS[c.source] || '#666';
+    html += `<div style="width:${w}px;height:${w}px;background:${color};border-radius:1px;opacity:0.7" title="${c.title}: ${Math.round(c.estimated_pages)}p"></div>`;
+  });
+  html += '</div>';
+
+  body.innerHTML = html;
+})();
+
+// 7. SPARKLINE TABLE
+(function() {
+  const tbody = document.getElementById('sparkline-tbody');
+  // Build trend lookup
+  const trendMap = {};
+  tagTrends.forEach(d => {
+    if (!trendMap[d.name]) trendMap[d.name] = [];
+    trendMap[d.name].push({ month: d.month, cnt: d.cnt });
+  });
+
+  function miniSparkline(data) {
+    if (!data || !data.length) return '';
+    const max = Math.max(...data.map(d => d.cnt), 1);
+    const w = 80, h = 20;
+    const step = w / Math.max(data.length - 1, 1);
+    let path = '';
+    data.forEach((d, i) => {
+      const x = i * step;
+      const y = h - (d.cnt / max) * h;
+      path += (i === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1);
+    });
+    return `<svg class="sparkline" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+      <path d="${path}" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+    </svg>`;
+  }
+
+  let html = '';
+  sparklineTags.forEach(t => {
+    const sentClass = (t.avg_sent || 0) > 0.05 ? 'sent-pos' : (t.avg_sent || 0) < -0.05 ? 'sent-neg' : 'sent-neu';
+    const trend = trendMap[t.name] || [];
+    html += `<tr>
+      <td class="tag-name">${t.name}</td>
+      <td class="num">${t.convos}</td>
+      <td class="num">${t.ideas}</td>
+      <td class="num ${sentClass}">${(t.avg_sent || 0).toFixed(3)}</td>
+      <td class="num">${(t.avg_pages || 0).toFixed(0)}p</td>
+      <td>${miniSparkline(trend)}</td>
+    </tr>`;
+  });
+  tbody.innerHTML = html;
+})();
+</script>
+</body>
+</html>

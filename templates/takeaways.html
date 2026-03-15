@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ showcase.title }} — Dreambase</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+.showcase-hero {
+  padding: 2.5rem 2rem 2rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  border-left: 5px solid {{ showcase.color }};
+}
+.showcase-hero h2 { font-size: 2rem; margin-bottom: 0.3rem; }
+.showcase-subtitle {
+  font-size: 1rem; color: var(--text-muted); font-style: italic;
+  margin-bottom: 1rem; line-height: 1.5;
+}
+.showcase-hook {
+  font-size: 1.1rem; color: var(--accent); font-style: italic;
+  margin-bottom: 1.2rem; line-height: 1.5;
+}
+.showcase-stats {
+  display: flex; gap: 1.5rem; flex-wrap: wrap;
+  color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.5rem;
+}
+.showcase-stats strong { color: var(--orange); }
+.showcase-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+
+.showcase-tabs {
+  display: flex; gap: 0; padding: 0 2rem;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.tab-btn {
+  padding: 0.75rem 1.5rem; background: none; border: none;
+  border-bottom: 3px solid transparent; color: var(--text-muted);
+  font-size: 0.9rem; cursor: pointer; white-space: nowrap;
+  transition: color 0.2s, border-color 0.2s;
+}
+.tab-btn:hover { color: var(--text); background: none; }
+.tab-btn.active { color: {{ showcase.color }}; border-bottom-color: {{ showcase.color }}; background: none; }
+.tab-content { display: none; padding: 2rem; }
+.tab-content.active { display: block; }
+
+/* Essay */
+.essay { max-width: 720px; line-height: 1.8; font-size: 0.95rem; }
+.essay h3 { color: {{ showcase.color }}; margin: 2rem 0 0.8rem; font-size: 1.2rem; }
+.essay p { margin-bottom: 1.2rem; }
+
+/* Takeaway cards */
+.takeaway-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1rem;
+}
+.takeaway-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 1.25rem 1.5rem; border-left: 4px solid {{ showcase.color }};
+  transition: border-color 0.2s;
+}
+.takeaway-card:hover { border-color: {{ showcase.color }}; }
+.takeaway-number {
+  font-size: 1.8rem; font-weight: 700; color: {{ showcase.color }}; opacity: 0.5;
+  float: right; margin-left: 0.5rem; line-height: 1;
+}
+.takeaway-card h4 { font-size: 0.95rem; margin-bottom: 0.4rem; color: var(--text); line-height: 1.4; }
+.takeaway-card p { font-size: 0.84rem; color: var(--text-muted); line-height: 1.5; margin: 0; }
+.takeaway-category {
+  display: inline-block; padding: 0.12rem 0.45rem; border-radius: 3px;
+  font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.04em; margin-bottom: 0.5rem;
+}
+.cat-prompting { background: #1b5e20; color: #a5d6a7; }
+.cat-workflow { background: #0d47a1; color: #90caf9; }
+.cat-architecture { background: #4a148c; color: #ce93d8; }
+.cat-mindset { background: #e65100; color: #ffcc80; }
+.cat-failure { background: #b71c1c; color: #ef9a9a; }
+
+/* Category filter */
+.category-filters {
+  display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;
+}
+.category-filters button {
+  padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--card); color: var(--text-muted); font-size: 0.82rem;
+  cursor: pointer; transition: all 0.2s;
+}
+.category-filters button:hover, .category-filters button.active {
+  border-color: {{ showcase.color }}; color: {{ showcase.color }};
+}
+
+/* Evolution timeline */
+.evo-entry {
+  padding: 1.25rem 0; border-bottom: 1px solid var(--border);
+}
+.evo-phase {
+  color: {{ showcase.color }}; font-size: 0.8rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.evo-title { font-weight: 600; margin: 0.3rem 0; font-size: 1rem; }
+.evo-body { font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; }
+
+/* Conversations */
+.conv-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.conv-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1rem 1.25rem; background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; border-left: 3px solid {{ showcase.color }};
+  text-decoration: none; color: var(--text);
+}
+.conv-item:hover { border-color: {{ showcase.color }}; text-decoration: none; }
+.conv-item .title { font-weight: 600; font-size: 0.95rem; }
+.conv-item .meta { font-size: 0.8rem; color: var(--text-muted); }
+.conv-item .pages { font-size: 0.85rem; color: var(--orange); font-weight: 600; }
+
+/* Rabbit holes */
+.rabbit-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;
+}
+.rabbit-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  padding: 1.25rem; text-decoration: none; color: var(--text);
+  transition: border-color 0.2s, transform 0.1s;
+}
+.rabbit-card:hover { border-color: var(--accent); transform: translateY(-2px); text-decoration: none; }
+.rabbit-card h4 { font-size: 0.95rem; margin-bottom: 0.3rem; }
+.rabbit-card p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; }
+</style>
+</head>
+<body>
+<header>
+  <h1><a href="/">Dreambase</a></h1>
+  <nav>
+    <a href="/">Browse</a> <a href="/viz">Viz</a> <a href="/ideas">Ideas</a>
+    <a href="/showcases">Showcases</a> <a href="/collections">Collections</a>
+    <a href="/scholars">Scholars</a> <a href="/projects">Projects</a> <a href="/values">Values</a>
+  </nav>
+</header>
+
+<div class="showcase-hero">
+  <h2>{{ showcase.title }}</h2>
+  <div class="showcase-subtitle">{{ showcase.subtitle }}</div>
+  <div class="showcase-hook">{{ showcase.hook }}</div>
+  <div class="showcase-stats">
+    <span><strong>{{ conversations|length }}</strong> source conversations</span>
+    <span><strong>{{ total_pages }}</strong> pages of exploration</span>
+    <span><strong>{{ total_messages }}</strong> messages</span>
+  </div>
+  <div class="showcase-stats">
+    <span><strong>50</strong> takeaways across <strong>5</strong> categories</span>
+    <span><strong>4,308</strong> conversations distilled</span>
+  </div>
+  <div class="showcase-tags">
+    {% for t in showcase.tags %}<span class="pill">{{ t }}</span>{% endfor %}
+  </div>
+</div>
+
+<div class="showcase-tabs">
+  <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="showTab('takeaways')">The 50 Takeaways</button>
+  <button class="tab-btn" onclick="showTab('evolution')">Evolution</button>
+  <button class="tab-btn" onclick="showTab('quotes')">Key Quotes</button>
+  <button class="tab-btn" onclick="showTab('conversations')">Source Conversations</button>
+  <button class="tab-btn" onclick="showTab('rabbitholes')">Rabbit Holes</button>
+</div>
+
+<!-- OVERVIEW TAB -->
+<div id="tab-overview" class="tab-content active">
+<div class="essay">
+<p>Two years. 4,308 conversations. 130,000 pages. Ten data sources spanning ChatGPT, Claude, Gmail, SMS, Facebook, Twitter, and half a dozen other formats. The database that holds all of this — Megabase — is itself a product of the work it catalogues.</p>
+
+<p>These 50 takeaways are not tips. They are hard-won lessons from building a personal knowledge archaeology system with large language models as collaborators. Some were obvious in hindsight. Others were counterintuitive. A few were painful.</p>
+
+<h3>The Five Categories</h3>
+
+<p><strong>Prompting</strong> (1-15): How to communicate with a model so it produces what you actually need. The gap between "ask a question" and "design an interaction" is where most of the value lives.</p>
+
+<p><strong>Workflow</strong> (16-25): How to organize your time, your output, and your expectations around AI collaboration. The model is a tool; you are the craftsperson.</p>
+
+<p><strong>Architecture</strong> (26-35): How to build systems that use LLMs without depending on them. SQLite as interchange format. Chunking as fundamental operation. The sidecar pattern.</p>
+
+<p><strong>Mindset</strong> (36-45): The psychological and philosophical shifts that come from sustained AI collaboration. You are the curator. The process is the product. The database is autobiographical.</p>
+
+<p><strong>Failure Modes</strong> (46-50): The ways it goes wrong. Scope creep, premature abstraction, hallucinated confidence, ID fragility, and the rabbit hole that has no bottom.</p>
+
+<h3>How to Read This</h3>
+
+<p>Each takeaway is a card. The number is its rank within its category, not its importance. Every takeaway links to the conversations where the insight crystallized. Browse linearly or filter by category — the tab above gives you both options.</p>
+</div>
+</div>
+
+<!-- THE 50 TAKEAWAYS TAB -->
+<div id="tab-takeaways" class="tab-content">
+<div class="category-filters">
+  <button class="active" onclick="filterCategory('all', this)">All (50)</button>
+  <button onclick="filterCategory('prompting', this)">Prompting (15)</button>
+  <button onclick="filterCategory('workflow', this)">Workflow (10)</button>
+  <button onclick="filterCategory('architecture', this)">Architecture (10)</button>
+  <button onclick="filterCategory('mindset', this)">Mindset (10)</button>
+  <button onclick="filterCategory('failure', this)">Failure Modes (5)</button>
+</div>
+
+<div class="takeaway-grid" id="takeaway-grid">
+
+<!-- PROMPTING -->
+<div class="takeaway-card" data-cat="prompting">
+  <span class="takeaway-number">1</span>
+  <span class="takeaway-category cat-prompting">Prompting</span>
+  <h4>Start with structure, not content.</h4>
+  <p>Give the LLM a format before you give it a task. Headers, bullet points, tables — the shape of the output is more important than the instructions about what to put in it.</p>
+</div>
+
+<div class="takeaway-card" data-cat="prompting">
+  <span class="takeaway-number">2</span>
+  <span class="takeaway-category cat-prompting">Prompting</span>
+  <h4>The first response is a draft, not an answer.</h4>
+  <p>Always iterate. The model's first attempt is a starting point for refinement, not a finished product. Plan for 2-3 rounds minimum.</p>
+</div>
+
+<div class="takeaway-card" data-cat="prompting">
+  <span class="takeaway-number">3</span>
+  <span class="takeaway-category cat-prompting">Prompting</span>
+  <h4>Chain of thought works because it forces sequencing.</h4>
+  <p>The model thinks better when you make it show its work. "Think step by step" isn't magic — it prevents the model from skipping logical dependencies.</p>
+</div>
+
+<div class="takeaway-card" data-cat="prompting">
+  <span class="takeaway-number">4</span>
+  <span class="takeaway-category cat-prompting">Prompting</span>
+  <h4>Personas are cognitive primes, not roleplay.</h4>
+  <p>"You are a senior engineer" changes reasoning quality because it activates a different distribution of training data. It's not pretend — it's retrieval.</p>
+</div>
+
+<div class="takeaway-card" data-cat="prompting">
+  <span class="takeaway-number">5</span>
+  <span class="takeaway-category cat-prompting">Prompting</span>
+  <h4>Short prompts get short answers.</h4>
+  <p>Length of input correlates with depth of output. If you want a thorough response, provide thorough context.</p>
+</div>
+
+<div class="takeaway-card" data-cat="prompting">
+  <span class="takeaway-number">6</span>
+  <span class="takeaway-category cat-prompting">Prompting</span>
+  <h4>"Give me 20 ideas" beats "give me an idea" 20 times.</h4>
+  <p>Batch requests produce more varied output because the model avoids repeating itself within a single response.</p>
+</div>
+
+<div class="takeaway-card" data-cat="prompting">
+  <span class="takeaway-number">7</span>
+  <span class="takeaway-category cat-prompting">Prompting</span>
+  <h4>Constraints produce creativity.</h4>
+  <p>"Write a poem in exactly 14 lines" gets better results than "write a poem." Constraints focus the model's generation and reduce generic output.</p>
+</div>
+
+<div class="takeaway-card" data-cat="prompting">
+  <span class="takeaway-number">8</span>
+  <span class="takeaway-category cat-prompting">Prompting</span>
+  <h4>The prompt is a UI.</h4>
+  <p>Treat it like interface design: what does the model need to see, in what order, with what emphasis? Prompt engineering is information architecture.</p>
+</div>
+
+<div class="takeaway-card" data-cat="prompting">
+  <span class="takeaway-number">9</span>
+  <span class="takeaway-category cat-prompting">Prompting</span>
+  <h4>Examples are worth a thousand words of instruction.</h4>
+  <p>One good example beats three paragraphs of description. Few-shot prompting works because the model pattern-matches on structure.</p>
+</div>
+
+<div class="takeaway-card" data-cat="prompting">
+  <span class="takeaway-number">10</span>
+  <span class="takeaway-category cat-prompting">Prompting</span>
+  <h4>Temperature is a collaboration dial.</h4>
+  <p>Low for precision tasks, high for brainstorming, medium for drafting. Most people never touch it. They should.</p>
+</div>
+
+<div class="takeaway-card" data-cat="prompting">
+  <span class="takeaway-number">11</span>
+  <span class="takeaway-category cat-prompting">Prompting</span>
+  <h4>System prompts are persistent context.</h4>
+  <p>Use them for persona and constraints, not step-by-step instructions. They set the frame; user messages set the task.</p>
+</div>
+
+<div class="takeaway-card" data-cat="prompting">
+  <span class="takeaway-number">12</span>
+  <span class="takeaway-category cat-prompting">Prompting</span>
+  <h4>The model can't see what you didn't paste.</h4>
+  <p>If it's not in the context window, it doesn't exist for the model. Don't assume shared knowledge — provide it.</p>
+</div>
+
+<div class="takeaway-card" data-cat="prompting">
+  <span class="takeaway-number">13</span>
+  <span class="takeaway-category cat-prompting">Prompting</span>
+  <h4>Negations confuse.</h4>
+  <p>"Don't use jargon" works worse than "Use plain language." Tell the model what TO do, not what to avoid.</p>
+</div>
+
+<div class="takeaway-card" data-cat="prompting">
+  <span class="takeaway-number">14</span>
+  <span class="takeaway-category cat-prompting">Prompting</span>
+  <h4>Markdown structure improves reasoning.</h4>
+  <p>Headers and lists in prompts produce structured output. The model mirrors the organization you provide.</p>
+</div>
+
+<div class="takeaway-card" data-cat="prompting">
+  <span class="takeaway-number">15</span>
+  <span class="takeaway-category cat-prompting">Prompting</span>
+  <h4>The best prompt is often a conversation.</h4>
+  <p>Multi-turn refinement beats a single perfect prompt. Use the first turn to orient, the second to refine, the third to polish.</p>
+</div>
+
+<!-- WORKFLOW -->
+<div class="takeaway-card" data-cat="workflow">
+  <span class="takeaway-number">16</span>
+  <span class="takeaway-category cat-workflow">Workflow</span>
+  <h4>Use the LLM for the 80%, then do the 20% yourself.</h4>
+  <p>The last mile of quality is human. The model gets you to draft-quality fast; you provide the judgment.</p>
+</div>
+
+<div class="takeaway-card" data-cat="workflow">
+  <span class="takeaway-number">17</span>
+  <span class="takeaway-category cat-workflow">Workflow</span>
+  <h4>Batch similar tasks.</h4>
+  <p>Don't prompt one conversation at a time — export 20 and process them together. Batching amortizes context-setting cost.</p>
+</div>
+
+<div class="takeaway-card" data-cat="workflow">
+  <span class="takeaway-number">18</span>
+  <span class="takeaway-category cat-workflow">Workflow</span>
+  <h4>Version your prompts like code.</h4>
+  <p>Keep the working version, archive the old ones. Prompts drift and degrade. Version control catches regressions.</p>
+</div>
+
+<div class="takeaway-card" data-cat="workflow">
+  <span class="takeaway-number">19</span>
+  <span class="takeaway-category cat-workflow">Workflow</span>
+  <h4>LLMs are force multipliers, not replacements.</h4>
+  <p>They amplify expertise — they don't substitute for it. A domain expert with an LLM beats an LLM alone every time.</p>
+</div>
+
+<div class="takeaway-card" data-cat="workflow">
+  <span class="takeaway-number">20</span>
+  <span class="takeaway-category cat-workflow">Workflow</span>
+  <h4>Context switching kills LLM productivity too.</h4>
+  <p>Keep focused sessions on one topic. A 40-message deep dive beats 40 one-message questions across different topics.</p>
+</div>
+
+<div class="takeaway-card" data-cat="workflow">
+  <span class="takeaway-number">21</span>
+  <span class="takeaway-category cat-workflow">Workflow</span>
+  <h4>Export early, export often.</h4>
+  <p>Don't let good output live only in chat history. Export to files, databases, documents. Chat history is ephemeral; artifacts persist.</p>
+</div>
+
+<div class="takeaway-card" data-cat="workflow">
+  <span class="takeaway-number">22</span>
+  <span class="takeaway-category cat-workflow">Workflow</span>
+  <h4>The subscription is the budget.</h4>
+  <p>Design workflows that use existing subscriptions (ChatGPT Plus, Claude Pro), not per-token API calls. Zero marginal cost changes behavior.</p>
+</div>
+
+<div class="takeaway-card" data-cat="workflow">
+  <span class="takeaway-number">23</span>
+  <span class="takeaway-category cat-workflow">Workflow</span>
+  <h4>Build tools to talk to the LLM, not tools that ARE the LLM.</h4>
+  <p>The interface layer matters. Dreambase's chunker prepares data FOR ChatGPT, not inside ChatGPT.</p>
+</div>
+
+<div class="takeaway-card" data-cat="workflow">
+  <span class="takeaway-number">24</span>
+  <span class="takeaway-category cat-workflow">Workflow</span>
+  <h4>Read the output critically.</h4>
+  <p>Fluent text does not equal correct text. LLMs are confident about everything. The more polished the prose, the harder you should check the facts.</p>
+</div>
+
+<div class="takeaway-card" data-cat="workflow">
+  <span class="takeaway-number">25</span>
+  <span class="takeaway-category cat-workflow">Workflow</span>
+  <h4>Keep a research journal.</h4>
+  <p>Your conversations are data about your own thinking. Dreambase exists because the conversation history turned out to be the most valuable artifact.</p>
+</div>
+
+<!-- ARCHITECTURE -->
+<div class="takeaway-card" data-cat="architecture">
+  <span class="takeaway-number">26</span>
+  <span class="takeaway-category cat-architecture">Architecture</span>
+  <h4>Chunking is the fundamental operation.</h4>
+  <p>If you can chunk it, you can process it. Every large-scale LLM workflow starts with splitting content into context-window-sized pieces.</p>
+</div>
+
+<div class="takeaway-card" data-cat="architecture">
+  <span class="takeaway-number">27</span>
+  <span class="takeaway-category cat-architecture">Architecture</span>
+  <h4>SQLite is the universal interchange format.</h4>
+  <p>Put everything in a database first, ask questions later. Ten sources, six formats, one megabase.db. SQL is the query language for life.</p>
+</div>
+
+<div class="takeaway-card" data-cat="architecture">
+  <span class="takeaway-number">28</span>
+  <span class="takeaway-category cat-architecture">Architecture</span>
+  <h4>Deterministic first, probabilistic second.</h4>
+  <p>Keyword matching before LLM classification. VADER sentiment before GPT-4 analysis. Cover 80% for free, then spend tokens on the hard 20%.</p>
+</div>
+
+<div class="takeaway-card" data-cat="architecture">
+  <span class="takeaway-number">29</span>
+  <span class="takeaway-category cat-architecture">Architecture</span>
+  <h4>The sidecar pattern works.</h4>
+  <p>Keep LLM-generated content in separate files from code. Narratives in JSON, templates in HTML. Either can change without breaking the other.</p>
+</div>
+
+<div class="takeaway-card" data-cat="architecture">
+  <span class="takeaway-number">30</span>
+  <span class="takeaway-category cat-architecture">Architecture</span>
+  <h4>Curated IDs are the simplest recommendation engine.</h4>
+  <p>A human-curated list of 20 conversation IDs beats a vector similarity search. Curation is taste; similarity is statistics.</p>
+</div>
+
+<div class="takeaway-card" data-cat="architecture">
+  <span class="takeaway-number">31</span>
+  <span class="takeaway-category cat-architecture">Architecture</span>
+  <h4>FTS5 is a superpower.</h4>
+  <p>Full-text search on 4M messages in milliseconds, no external service needed. SQLite's FTS5 is the most underrated tool in the stack.</p>
+</div>
+
+<div class="takeaway-card" data-cat="architecture">
+  <span class="takeaway-number">32</span>
+  <span class="takeaway-category cat-architecture">Architecture</span>
+  <h4>Flask + SQLite + Jinja2 is a complete stack.</h4>
+  <p>You don't need React for a personal knowledge tool. Server-rendered HTML with a good CSS file does 95% of what an SPA does with 5% of the complexity.</p>
+</div>
+
+<div class="takeaway-card" data-cat="architecture">
+  <span class="takeaway-number">33</span>
+  <span class="takeaway-category cat-architecture">Architecture</span>
+  <h4>Hardcoded data is fine for small scale.</h4>
+  <p>30 scholars in a Python dict is simpler than a CMS. Don't build infrastructure for scale you'll never reach.</p>
+</div>
+
+<div class="takeaway-card" data-cat="architecture">
+  <span class="takeaway-number">34</span>
+  <span class="takeaway-category cat-architecture">Architecture</span>
+  <h4>The rabbit hole is the UI pattern.</h4>
+  <p>Every page should link to related pages. That's the whole UX. Navigation is discovery. Links are the product.</p>
+</div>
+
+<div class="takeaway-card" data-cat="architecture">
+  <span class="takeaway-number">35</span>
+  <span class="takeaway-category cat-architecture">Architecture</span>
+  <h4>Build the database before the interface.</h4>
+  <p>Prove the data works in SQL before touching HTML. If the queries don't return interesting results, no amount of CSS will save you.</p>
+</div>
+
+<!-- MINDSET -->
+<div class="takeaway-card" data-cat="mindset">
+  <span class="takeaway-number">36</span>
+  <span class="takeaway-category cat-mindset">Mindset</span>
+  <h4>You are the curator, the model is the librarian.</h4>
+  <p>You decide what matters; it finds and organizes. The creative judgment is yours. The scale is the model's.</p>
+</div>
+
+<div class="takeaway-card" data-cat="mindset">
+  <span class="takeaway-number">37</span>
+  <span class="takeaway-category cat-mindset">Mindset</span>
+  <h4>Intellectual archaeology is a real discipline.</h4>
+  <p>Your old conversations are primary sources. Treating them as data — tagging, indexing, searching — reveals patterns invisible in real-time.</p>
+</div>
+
+<div class="takeaway-card" data-cat="mindset">
+  <span class="takeaway-number">38</span>
+  <span class="takeaway-category cat-mindset">Mindset</span>
+  <h4>Cross-domain connections are the highest-value output.</h4>
+  <p>Alchemy into game design is more interesting than either alone. The LLM excels at bridging domains because it has no disciplinary loyalty.</p>
+</div>
+
+<div class="takeaway-card" data-cat="mindset">
+  <span class="takeaway-number">39</span>
+  <span class="takeaway-category cat-mindset">Mindset</span>
+  <h4>The process IS the product.</h4>
+  <p>Building Dreambase taught more than reading any book about knowledge management. The act of organizing is the act of understanding.</p>
+</div>
+
+<div class="takeaway-card" data-cat="mindset">
+  <span class="takeaway-number">40</span>
+  <span class="takeaway-category cat-mindset">Mindset</span>
+  <h4>Obsessive documentation pays compound interest.</h4>
+  <p>Today's notes are tomorrow's database entries. The conversations you export now become the showcase pages of next month.</p>
+</div>
+
+<div class="takeaway-card" data-cat="mindset">
+  <span class="takeaway-number">41</span>
+  <span class="takeaway-category cat-mindset">Mindset</span>
+  <h4>Personal tools don't need to be products.</h4>
+  <p>Build for yourself first. Generalize only if someone else asks. The best personal tools are opinionated and idiosyncratic.</p>
+</div>
+
+<div class="takeaway-card" data-cat="mindset">
+  <span class="takeaway-number">42</span>
+  <span class="takeaway-category cat-mindset">Mindset</span>
+  <h4>The conversation is the unit of thought.</h4>
+  <p>Not the message, not the session — the full conversation arc. A 400-page conversation has a narrative structure that individual messages don't.</p>
+</div>
+
+<div class="takeaway-card" data-cat="mindset">
+  <span class="takeaway-number">43</span>
+  <span class="takeaway-category cat-mindset">Mindset</span>
+  <h4>Sentiment analysis reveals what you can't self-report.</h4>
+  <p>Your excitement about alchemy is measurable. VADER scores on user messages show which topics produce the most positive engagement — data about passion.</p>
+</div>
+
+<div class="takeaway-card" data-cat="mindset">
+  <span class="takeaway-number">44</span>
+  <span class="takeaway-category cat-mindset">Mindset</span>
+  <h4>Tags are a lossy compression of meaning.</h4>
+  <p>But they're the best compression we have. 9 tags across 3,309 links create a navigable map of 4,308 conversations. Imperfect but indispensable.</p>
+</div>
+
+<div class="takeaway-card" data-cat="mindset">
+  <span class="takeaway-number">45</span>
+  <span class="takeaway-category cat-mindset">Mindset</span>
+  <h4>Two years of LLM conversations is a portrait.</h4>
+  <p>The database is autobiographical. Topics, frequencies, sentiment, depth — they paint a picture of who you are and what you care about.</p>
+</div>
+
+<!-- FAILURE MODES -->
+<div class="takeaway-card" data-cat="failure">
+  <span class="takeaway-number">46</span>
+  <span class="takeaway-category cat-failure">Failure Modes</span>
+  <h4>Scope creep is the default.</h4>
+  <p>You will always want one more feature. Use a parking lot document. Write the idea down, don't build it now.</p>
+</div>
+
+<div class="takeaway-card" data-cat="failure">
+  <span class="takeaway-number">47</span>
+  <span class="takeaway-category cat-failure">Failure Modes</span>
+  <h4>Premature abstraction wastes time.</h4>
+  <p>Build three concrete things before abstracting. A reusable component that's only used once is dead weight.</p>
+</div>
+
+<div class="takeaway-card" data-cat="failure">
+  <span class="takeaway-number">48</span>
+  <span class="takeaway-category cat-failure">Failure Modes</span>
+  <h4>Re-ingestion destroys IDs.</h4>
+  <p>If you rebuild the database, every hardcoded conversation link breaks. This is the single most dangerous failure mode in Dreambase's architecture.</p>
+</div>
+
+<div class="takeaway-card" data-cat="failure">
+  <span class="takeaway-number">49</span>
+  <span class="takeaway-category cat-failure">Failure Modes</span>
+  <h4>LLMs hallucinate confidence.</h4>
+  <p>The more certain the output sounds, the more you should verify. Fluency is not accuracy. Polish is not truth.</p>
+</div>
+
+<div class="takeaway-card" data-cat="failure">
+  <span class="takeaway-number">50</span>
+  <span class="takeaway-category cat-failure">Failure Modes</span>
+  <h4>The rabbit hole has no bottom.</h4>
+  <p>Set a timer. Ship something. Come back tomorrow. The intellectual journey never ends, but the engineering sprint must.</p>
+</div>
+
+</div>
+</div>
+
+<!-- EVOLUTION TAB -->
+<div id="tab-evolution" class="tab-content">
+<h3 style="margin-bottom: 1rem; color: var(--text-muted);">How LLM usage evolved over 2 years</h3>
+<div style="max-width: 700px;">
+
+<div class="evo-entry">
+  <div class="evo-phase">Early 2024</div>
+  <div class="evo-title">Simple Q&A</div>
+  <div class="evo-body">Single-turn questions. "What is X?" "How do I Y?" The model as encyclopedia. Output consumed and discarded — no archiving, no system.</div>
+</div>
+
+<div class="evo-entry">
+  <div class="evo-phase">Mid 2024</div>
+  <div class="evo-title">Extended Conversations</div>
+  <div class="evo-body">Multi-turn deep dives. 50-100 message conversations on alchemy, philosophy, game design. The model as research partner. First signs of the database impulse — "I should save these."</div>
+</div>
+
+<div class="evo-entry">
+  <div class="evo-phase">Late 2024</div>
+  <div class="evo-title">Project Building</div>
+  <div class="evo-body">Using LLMs to build actual software: MTG overlays, tarot engines, database tools. The model as pair programmer. Prompt engineering becomes a real skill — learning to chunk, iterate, validate.</div>
+</div>
+
+<div class="evo-entry">
+  <div class="evo-phase">Early 2025</div>
+  <div class="evo-title">Knowledge Systems</div>
+  <div class="evo-body">Building systems about the conversations themselves. Megabase conceived. The model helping to organize its own output. Meta-cognitive recursion: using AI to understand how you use AI.</div>
+</div>
+
+<div class="evo-entry">
+  <div class="evo-phase">Mid 2025</div>
+  <div class="evo-title">Batch Processing Workflows</div>
+  <div class="evo-body">Chunker produces batch files. Summarizer runs in parallel. The model integrated into data pipelines, not just conversations. Deterministic + probabilistic hybrid approach crystallizes.</div>
+</div>
+
+<div class="evo-entry">
+  <div class="evo-phase">Late 2025 — 2026</div>
+  <div class="evo-title">Agentic Swarms</div>
+  <div class="evo-body">Claude Code with 33 PKD skills. Multi-agent orchestration. The model as a team of specialists, each with defined roles and communication protocols. The Eldritch Swarm architecture.</div>
+</div>
+
+</div>
+</div>
+
+<!-- KEY QUOTES TAB -->
+<div id="tab-quotes" class="tab-content">
+<h3 style="margin-bottom: 1rem; color: var(--text-muted);">Moments of crystallization</h3>
+<div style="max-width: 700px; display: flex; flex-direction: column; gap: 1.25rem;">
+
+<div style="padding: 1.25rem; background: var(--card); border-left: 4px solid {{ showcase.color }}; border-radius: 8px;">
+  <div style="font-style: italic; line-height: 1.6; margin-bottom: 0.5rem;">"The database isn't a record of what I learned. It's a record of how I think."</div>
+  <div style="font-size: 0.8rem; color: var(--text-muted);">On building Megabase — the realization that conversation metadata IS self-knowledge</div>
+</div>
+
+<div style="padding: 1.25rem; background: var(--card); border-left: 4px solid {{ showcase.color }}; border-radius: 8px;">
+  <div style="font-style: italic; line-height: 1.6; margin-bottom: 0.5rem;">"Don't ask the model to be creative. Ask it to be creative within constraints. The constraints are the creativity."</div>
+  <div style="font-size: 0.8rem; color: var(--text-muted);">On prompt engineering — the paradox of constraint-driven generation</div>
+</div>
+
+<div style="padding: 1.25rem; background: var(--card); border-left: 4px solid {{ showcase.color }}; border-radius: 8px;">
+  <div style="font-style: italic; line-height: 1.6; margin-bottom: 0.5rem;">"Every showcase page is an opportunity to rethink design. The data demands its own aesthetic."</div>
+  <div style="font-size: 0.8rem; color: var(--text-muted);">On Dreambase design — each page teaches something about how knowledge wants to be displayed</div>
+</div>
+
+<div style="padding: 1.25rem; background: var(--card); border-left: 4px solid {{ showcase.color }}; border-radius: 8px;">
+  <div style="font-style: italic; line-height: 1.6; margin-bottom: 0.5rem;">"SQLite + Flask + Jinja2. That's the stack. Everything else is a distraction until you've exhausted those three."</div>
+  <div style="font-size: 0.8rem; color: var(--text-muted);">On architecture — the anti-complexity principle</div>
+</div>
+
+<div style="padding: 1.25rem; background: var(--card); border-left: 4px solid {{ showcase.color }}; border-radius: 8px;">
+  <div style="font-style: italic; line-height: 1.6; margin-bottom: 0.5rem;">"The rabbit hole is the product. The links between pages are the real content. Everything else is scaffolding."</div>
+  <div style="font-size: 0.8rem; color: var(--text-muted);">On UX design — navigation as the fundamental user experience</div>
+</div>
+
+</div>
+</div>
+
+<!-- SOURCE CONVERSATIONS TAB -->
+<div id="tab-conversations" class="tab-content">
+<h3 style="margin-bottom: 1rem; color: var(--text-muted);">{{ conversations|length }} source conversations · {{ total_pages }} pages</h3>
+<div class="conv-list">
+{% for c in conversations %}
+<a href="/conversation/{{ c.id }}" class="conv-item">
+  <div>
+    <div class="title">{{ c.title or 'Untitled' }}</div>
+    <div class="meta">{{ c.source_name }} · {{ c.created_at[:10] if c.created_at else 'undated' }}</div>
+  </div>
+  <div class="pages">{{ c.estimated_pages|int }}p</div>
+</a>
+{% endfor %}
+</div>
+</div>
+
+<!-- RABBIT HOLES TAB -->
+<div id="tab-rabbitholes" class="tab-content">
+<h3 style="margin-bottom: 1rem; color: var(--text-muted);">Where to go from here</h3>
+<div class="rabbit-grid">
+  <a href="/wonderland/injecting-custom-logic" class="rabbit-card">
+    <h4>Injecting Custom Logic</h4>
+    <p>The engineering showcase — 9 extensibility patterns across 33 projects. Architecture takeaways in action.</p>
+  </a>
+  <a href="/wonderland/algorithms-in-wonderland" class="rabbit-card">
+    <h4>Algorithms in Wonderland</h4>
+    <p>The flagship showcase — Carroll illustrations mapping to CS concepts. The standard these takeaways helped create.</p>
+  </a>
+  <a href="/projects" class="rabbit-card">
+    <h4>Projects Page</h4>
+    <p>33 built projects across 5 domains. The output of 2 years of LLM-assisted development.</p>
+  </a>
+  <a href="/values" class="rabbit-card">
+    <h4>Values Page</h4>
+    <p>Evidence-backed intellectual values derived from the database. Takeaway #43 in action: sentiment as self-knowledge.</p>
+  </a>
+  <a href="/viz" class="rabbit-card">
+    <h4>Visualizations</h4>
+    <p>7 Tufte-inspired charts mapping the intellectual landscape. The data behind the takeaways.</p>
+  </a>
+  <a href="/scholars" class="rabbit-card">
+    <h4>Scholars</h4>
+    <p>30 thinkers who shaped the journey. The "curator" takeaway (#36) in practice.</p>
+  </a>
+  <a href="/collection/building-dreams" class="rabbit-card">
+    <h4>Building Dreams Collection</h4>
+    <p>The conversations where ideas became code. Every workflow and architecture takeaway has roots here.</p>
+  </a>
+  <a href="/collection/scholarly-deep-reads" class="rabbit-card">
+    <h4>Scholarly Deep Reads</h4>
+    <p>The 20 longest conversations — where extended multi-turn engagement (takeaway #20) paid off most.</p>
+  </a>
+</div>
+</div>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function filterCategory(cat, btn) {
+  document.querySelectorAll('.category-filters button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.takeaway-card').forEach(card => {
+    if (cat === 'all' || card.dataset.cat === cat) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+</script>
+</body>
+</html>

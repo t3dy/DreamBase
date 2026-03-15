@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dreambase — Haunt Your Own Records</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <h1><a href="/">Dreambase</a></h1>
+  <nav>
+    <a href="/">Browse</a>
+    <a href="/viz">Viz</a>
+    <a href="/ideas">Ideas ({{ total }})</a>
+    <a href="/showcases">Showcases</a>
+    <a href="/collections">Collections</a>
+    <a href="/scholars">Scholars</a>
+    <a href="/projects">Projects</a>
+    <a href="/values">Values</a>
+  </nav>
+</header>
+
+<div class="controls">
+  <form method="get" class="search-form">
+    <input type="text" name="q" value="{{ q }}" placeholder="Full-text search across all messages..." class="search-input">
+    <select name="source">
+      <option value="">All sources</option>
+      {% for s in sources %}
+      <option value="{{ s.name }}" {{ 'selected' if source == s.name }}>{{ s.name }}</option>
+      {% endfor %}
+    </select>
+    <select name="tag">
+      <option value="">All tags</option>
+      {% for t in tags %}
+      <option value="{{ t.name }}" {{ 'selected' if tag == t.name }}>{{ t.name }} ({{ t.cnt }})</option>
+      {% endfor %}
+    </select>
+    <select name="sort">
+      <option value="pages" {{ 'selected' if sort == 'pages' }}>Biggest</option>
+      <option value="date" {{ 'selected' if sort == 'date' }}>Newest</option>
+      <option value="messages" {{ 'selected' if sort == 'messages' }}>Most messages</option>
+      <option value="title" {{ 'selected' if sort == 'title' }}>A-Z</option>
+    </select>
+    <button type="submit">Search</button>
+  </form>
+  <div class="tag-pills">
+    {% for t in tags[:12] %}
+    <a href="/?tag={{ t.name }}" class="pill {{ 'active' if tag == t.name }}">{{ t.name }} <span>{{ t.cnt }}</span></a>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="results-info">
+  Showing {{ convos|length }} of {{ total }} conversations
+  {% if q %} matching "{{ q }}"{% endif %}
+  {% if tag %} tagged {{ tag }}{% endif %}
+  {% if source %} from {{ source }}{% endif %}
+</div>
+
+<div class="card-grid">
+  {% for c in convos %}
+  <a href="/conversation/{{ c.id }}" class="card">
+    <div class="card-header">
+      <span class="source-badge {{ c.source_name }}">{{ c.source_name }}</span>
+      <span class="pages">{{ "%.0f"|format(c.estimated_pages) }}p</span>
+    </div>
+    <h3>{{ c.title or 'Untitled' }}</h3>
+    <p class="summary">{{ (c.summary or '')[:200] }}{{ '...' if (c.summary or '')|length > 200 }}</p>
+    <div class="card-footer">
+      <span class="date">{{ (c.created_at or '')[:10] }}</span>
+      <span class="msg-count">{{ c.message_count }} msgs</span>
+    </div>
+    {% if conv_tags.get(c.id) %}
+    <div class="card-tags">
+      {% for t in conv_tags[c.id][:4] %}
+      <span class="mini-pill">{{ t }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </a>
+  {% endfor %}
+</div>
+
+{% if total_pages > 1 %}
+<div class="pagination">
+  {% if page > 1 %}
+  <a href="?q={{ q }}&source={{ source }}&tag={{ tag }}&sort={{ sort }}&page={{ page-1 }}">← Prev</a>
+  {% endif %}
+  <span>Page {{ page }} of {{ total_pages }}</span>
+  {% if page < total_pages %}
+  <a href="?q={{ q }}&source={{ source }}&tag={{ tag }}&sort={{ sort }}&page={{ page+1 }}">Next →</a>
+  {% endif %}
+</div>
+{% endif %}
+
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Showcases — Dreambase</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+.showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+}
+.showcase-card {
+  display: block;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  color: var(--text);
+  transition: border-color 0.2s, transform 0.1s;
+}
+.showcase-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  text-decoration: none;
+}
+.showcase-card h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+.showcase-card .hook {
+  font-style: italic;
+  color: var(--accent);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+.showcase-card .pedagogy {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+.showcase-card .meta {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.page-intro {
+  padding: 2rem 2rem 0;
+  max-width: 700px;
+}
+.page-intro h2 { margin-bottom: 0.5rem; }
+.page-intro p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
+</style>
+</head>
+<body>
+<header>
+  <h1><a href="/">Dreambase</a></h1>
+  <nav>
+    <a href="/">Browse</a>
+    <a href="/viz">Viz</a>
+    <a href="/ideas">Ideas</a>
+    <a href="/showcases" class="active">Showcases</a>
+    <a href="/collections">Collections</a>
+    <a href="/scholars">Scholars</a>
+    <a href="/projects">Projects</a>
+    <a href="/values">Values</a>
+  </nav>
+</header>
+
+<div class="page-intro">
+  <h2>Dream Showcases</h2>
+  <p>Deep dives into the most developed creative dreams — games, tools, and
+  ideas that span dozens of conversations and hundreds of pages of design work.
+  Each showcase tells the story of how an idea evolved.</p>
+</div>
+
+<div class="showcase-grid">
+  {% for sc in showcases %}
+  <a href="/dream/{{ sc.slug }}" class="showcase-card">
+    <div class="card-header">
+      <span class="pill mini {{ sc.category }}">{{ sc.category }}</span>
+      <span class="pill mini maturity-{{ sc.maturity }}">{{ sc.maturity }}</span>
+    </div>
+    <h3>{{ sc.title }}</h3>
+    <div class="hook">{{ sc.hook }}</div>
+    <div class="pedagogy">{{ sc.pedagogy[:150] }}{% if sc.pedagogy|length > 150 %}...{% endif %}</div>
+    <div class="meta">
+      <span>{{ sc.conversation_ids|length }} conversations</span>
+      {% for t in sc.tags[:3] %}
+      <span class="pill mini">{{ t }}</span>
+      {% endfor %}
+    </div>
+  </a>
+  {% endfor %}
+</div>
+
+</body>
+</html>
